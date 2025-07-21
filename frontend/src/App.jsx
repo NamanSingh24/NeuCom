@@ -1,5 +1,4 @@
 import React from 'react'
-import AdvancedDashboard from './components/AdvancedDashboard'
 import DashboardPage from './pages/DashboardPage'
 
 function App() {
