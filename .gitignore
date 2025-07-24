@@ -29,6 +29,7 @@ MANIFEST
 # Virtual Environment
 backend/.venv/
 backend/venv/
+backend/backend-sop
 env/
 venv/
 ENV/
