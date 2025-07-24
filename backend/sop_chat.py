@@ -6,7 +6,8 @@ import json
 import logging
 from datetime import datetime
 import asyncio
-
+# KG Integration
+from Knowledge_Graph.kg_utils import get_neo4j_driver
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -184,7 +185,16 @@ class SOPChat:
                 search_params.update(context_filter)
             
             relevant_docs = self.rag_engine.search_documents(query, **search_params)
-            
+
+            # === KG Filtering step ===
+            # You may need to import get_neo4j_driver at the top if not already
+          
+            kg_driver = get_neo4j_driver()
+            # If filter_rag_results_with_kg is a method of RAGEngine:
+            filtered_docs = self.rag_engine.filter_rag_results_with_kg(relevant_docs, query, kg_driver)
+            # If it's a standalone function, use: filtered_docs = filter_rag_results_with_kg(relevant_docs, query, kg_driver)
+            # =========================
+
             # Add current procedure context if active
             if self.current_procedure:
                 procedure_context = f"\nCurrent Procedure: {self.current_procedure['name']}\n"
@@ -200,7 +210,7 @@ class SOPChat:
             # Generate response
             response_data = self.groq_client.generate_response(
                 query=enhanced_query,
-                context=relevant_docs,
+                context=filtered_docs,  # <--- Use KG-filtered docs here!
                 conversation_history=self.conversation_history[-6:]  # Last 6 messages
             )
             
@@ -241,6 +251,8 @@ class SOPChat:
                 "intent": {"intent": "error", "confidence": 0},
                 "sources": [],
                 "confidence": 0,
+                "context_used": False, 
+                "current_procedure": self.current_procedure["name"] if self.current_procedure else None,
                 "error": str(e)
             }
             

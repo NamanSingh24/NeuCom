@@ -4,7 +4,11 @@ import logging
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 import warnings
-
+from pathlib import Path
+from datetime import datetime
+# KG Integration
+from Knowledge_Graph.kg_utils import get_neo4j_driver, get_steps_related_to_entity
+from Knowledge_Graph.kg_utils import extract_entities_from_query
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -105,9 +109,6 @@ except ImportError:
     logger.warning("numpy not available, using basic operations")
     NUMPY_AVAILABLE = False
     np = None
-
-from pathlib import Path
-from datetime import datetime
 
 class RAGEngine:
     def __init__(self, db_path: str = None):
@@ -411,3 +412,26 @@ class RAGEngine:
         except Exception as e:
             logger.error(f"Error exporting documents: {str(e)}")
             return {"status": "error", "message": str(e)}
+    # KG integration
+    def filter_rag_results_with_kg(self, rag_results, query, driver):
+        """
+        Use KG to filter or expand RAG results.
+        E.g., only keep RAG results that are related to entities found in the KG.
+        """
+        # Example: extract entities from query (use spaCy, regex, or LLM for real use)
+        entities = extract_entities_from_query(query)  # You need to implement this
+        print(f"[KG] Entities for filtering: {entities}")
+        relevant_step_ids = set()
+        for entity in entities:
+            steps = get_steps_related_to_entity(entity, driver)
+            step_ids = [step['id'] for step in steps if 'id' in step]
+            print(f"[KG] Steps found for entity '{entity}': {step_ids}")
+            relevant_step_ids.update(step_ids)
+        # Filter RAG results
+        filtered = [res for res in rag_results if res['metadata'].get('chunk_id') in relevant_step_ids]
+        if filtered:
+            print(f"[KG] Filtered RAG results using KG: {len(filtered)}")
+        else:
+            print("[KG] No relevant KG results, returning original RAG results.")
+        # If nothing found, fallback to original RAG results
+        return filtered if filtered else rag_results
