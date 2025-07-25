@@ -20,6 +20,9 @@ from rag_engine import RAGEngine
 from groq_client import GroqClient
 from voice_handler import VoiceHandler
 from sop_chat import SOPChat
+# Knowledge Graph Ingestion
+from Knowledge_Graph.ingestion import get_neo4j_driver, ingest_sop_to_kg
+import uuid
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -76,6 +79,15 @@ except Exception as e:
 
 # Initialize SOP chat
 sop_chat = SOPChat(rag_engine, groq_client, voice_handler)
+
+# Neo4j health check on startup
+try:
+    kg_driver = get_neo4j_driver()
+    with kg_driver.session() as session:
+        session.run("RETURN 1")
+    logger.info("Neo4j connection healthy: Successfully connected and ran test query.")
+except Exception as e:
+    logger.error(f"Neo4j health check failed: {e}")
 
 # Pydantic models
 class QueryRequest(BaseModel):
@@ -171,6 +183,39 @@ async def upload_document(file: UploadFile = File(...)):
                 raise Exception(f"RAG processing failed: {rag_result.get('message', 'Unknown error')}")
             
             logger.info(f"Successfully processed {file.filename}: {len(chunks)} chunks created")
+            
+            # Build SOP data structure
+            sop_id = str(uuid.uuid4())
+            sop_data = {
+                "id": sop_id,
+                "title": Path(file_path).stem,
+                "file_type": file_ext,
+                "source": str(file_path),
+                "created_at": datetime.now().isoformat(),
+                "steps": []
+            }
+
+            for i, chunk in enumerate(chunks):
+                step_id = f"{sop_id}_step_{i}"
+                sop_data["steps"].append({
+                    "id": step_id,
+                    "description": chunk["text"],
+                    "order": i,
+                    "chunk_id": chunk["chunk_id"],
+                    "tools": [],  # If you have tool extraction logic, add here
+                    "materials": [],  # If you have material extraction logic, add here
+                    "safety_notes": chunk.get("safety_notes", [])
+                })
+            
+            # Store in Neo4j
+            try:
+                kg_driver = get_neo4j_driver()
+                ingest_sop_to_kg(sop_data, kg_driver)
+                logger.info(f"SOP stored in Neo4j with id {sop_id}")
+            except Exception as e:
+                logger.error(f"Failed to store SOP in Neo4j: {e}")
+                logger.warning(f"Upload succeeded but SOP was NOT stored in Neo4j for file: {file.filename}")
+                # Optionally, you can raise an HTTPException here if you want to fail the upload
             
             return DocumentUploadResponse(
                 success=True,
