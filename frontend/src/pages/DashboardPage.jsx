@@ -6,6 +6,8 @@ import RecentActivity from '../components/dashboard/RecentActivity';
 import AISystemStatus from '../components/dashboard/AISystemStatus';
 import UploadArea from '../components/dashboard/UploadArea';
 import ChatArea from '../components/dashboard/ChatArea';
+import DocumentsArea from '../components/dashboard/DocumentsArea';
+import AnalyticsArea from '../components/dashboard/AnalyticsArea';
 import apiService from '../services/api';
 import { FileText, MessageSquare, Clock, TrendingUp, Upload, BarChart3, Settings, Home, Brain } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -193,6 +195,21 @@ const DashboardPage = () => {
             setInputMessage={setInputMessage}
             handleSendMessage={handleSendMessage}
             isLoading={isLoading}
+          />
+        );
+      case 'documents':
+        return (
+          <DocumentsArea
+            uploadedFiles={uploadedFiles}
+            onUploadNew={() => setActiveTab('upload')}
+          />
+        );
+      case 'analytics':
+        return (
+          <AnalyticsArea
+            systemStats={systemStats}
+            uploadedFiles={uploadedFiles}
+            messages={messages}
           />
         );
       default:
