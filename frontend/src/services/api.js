@@ -32,6 +32,30 @@ export const apiService = {
     return response.data;
   },
 
+  // Voice endpoints
+  uploadVoiceAudio: async (audioBlob) => {
+    const formData = new FormData();
+    formData.append('audio_file', audioBlob, 'recording.webm');
+    
+    const response = await api.post('/voice/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  synthesizeSpeech: async (text, voiceId = 'alloy', speed = 1.0) => {
+    const response = await api.post(`/voice/synthesize?voice_id=${voiceId}&speed=${speed}`, 
+      JSON.stringify(text), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
   // Get system stats
   getStats: async () => {
     const response = await api.get('/stats');

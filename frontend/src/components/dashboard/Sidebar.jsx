@@ -1,43 +1,64 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Brain, User } from 'lucide-react';
 
-const Sidebar = ({ sidebarItems, activeTab, setActiveTab }) => (
-  <div className="w-64 bg-white shadow-lg fixed h-full z-10">
-    <div className="p-6 border-b border-gray-200">
-      <div className="flex items-center space-x-3">
-        <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-          <Brain className="h-6 w-6 text-white" />
-        </div>
-        <div>
-          <h1 className="text-lg font-bold text-gray-900">SOP Interpreter</h1>
-          <p className="text-xs text-gray-500">AI-Powered Assistant</p>
+const Sidebar = ({ sidebarItems, activeTab, setActiveTab }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div 
+      className={`${isHovered ? 'w-64' : 'w-16'} bg-white shadow-lg fixed h-full z-10 transition-all duration-300 ease-in-out`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg flex-shrink-0">
+            <Brain className="h-5 w-5 text-white" />
+          </div>
+          <div className={`transition-all duration-300 ${isHovered ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
+            <h1 className="text-lg font-bold text-gray-900 whitespace-nowrap">SOP Interpreter</h1>
+            <p className="text-xs text-gray-500 whitespace-nowrap">AI-Powered Assistant</p>
+          </div>
         </div>
       </div>
-    </div>
-    <nav className="p-4 space-y-2">
-      {sidebarItems.map((item) => (
+      
+      <nav className="p-2 space-y-2">
+        {sidebarItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={`sidebar-item-collapsible w-full text-left ${activeTab === item.id ? 'active' : ''} ${isHovered ? 'expanded' : 'collapsed'}`}
+            title={!isHovered ? item.label : ''}
+          >
+            <div className={`${isHovered ? 'space-x-3' : 'justify-center '} flex items-center`}>
+              <item.icon className={`h-5 w-5 flex-shrink-0`} />
+              <span className={`transition-all duration-300 whitespace-nowrap ${isHovered ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
+                {item.label}
+              </span>
+            </div>
+          </button>
+        ))}
+      </nav>
+      
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
         <button
-          key={item.id}
-          onClick={() => setActiveTab(item.id)}
-          className={`sidebar-item w-full text-left ${activeTab === item.id ? 'active' : ''}`}
+          onClick={() => setActiveTab('profile')}
+          className={`w-full flex items-center space-x-3 p-2 rounded-lg transition-colors hover:bg-gray-100 ${
+            !isHovered ? 'justify-center' : ''
+          }`}
+          title={!isHovered ? 'Profile' : ''}
         >
-          <item.icon className="h-5 w-5" />
-          <span>{item.label}</span>
+          <div className="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+            <User className="h-4 w-4 text-white" />
+          </div>
+          <div className={`transition-all duration-300 ${isHovered ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
+            <p className="text-sm font-medium text-gray-900 whitespace-nowrap">Administrator</p>
+            <p className="text-xs text-gray-500 whitespace-nowrap">System Manager</p>
+          </div>
         </button>
-      ))}
-    </nav>
-    <div className="absolute bottom-0 left-0 right-0 w-64 p-4 border-t border-gray-200 bg-white">
-      <div className="flex items-center space-x-3">
-        <div className="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
-          <User className="h-4 w-4 text-white" />
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-medium text-gray-900">Administrator</p>
-          <p className="text-xs text-gray-500">System Manager</p>
-        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default Sidebar;

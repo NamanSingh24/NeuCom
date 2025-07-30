@@ -266,13 +266,16 @@ async def process_voice_upload(audio_file: UploadFile = File(...)):
         if not voice_handler:
             raise HTTPException(status_code=503, detail="Voice functionality not available")
         
-        # Validate audio file
-        audio_validation = voice_handler.validate_audio_file(audio_file.filename)
-        if not audio_validation["valid"]:
-            raise HTTPException(status_code=400, detail=audio_validation["error"])
+        # Simple validation - just check the file extension
+        filename = audio_file.filename or "recording.webm"
+        file_ext = Path(filename).suffix.lower()
+        supported_formats = ['.mp3', '.mp4', '.mpeg', '.mpga', '.m4a', '.wav', '.webm', '.ogg']
         
-        # Create temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=Path(audio_file.filename).suffix) as temp_file:
+        if file_ext not in supported_formats:
+            raise HTTPException(status_code=400, detail=f"Unsupported audio format: {file_ext}")
+        
+        # Create temporary file with proper suffix
+        with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as temp_file:
             content = await audio_file.read()
             temp_file.write(content)
             temp_file_path = temp_file.name

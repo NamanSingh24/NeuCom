@@ -8,6 +8,8 @@ import UploadArea from '../components/dashboard/UploadArea';
 import ChatArea from '../components/dashboard/ChatArea';
 import DocumentsArea from '../components/dashboard/DocumentsArea';
 import AnalyticsArea from '../components/dashboard/AnalyticsArea';
+import SettingsArea from '../components/dashboard/SettingsArea';
+import ProfileArea from '../components/dashboard/ProfileArea';
 import apiService from '../services/api';
 import { FileText, MessageSquare, Clock, TrendingUp, Upload, BarChart3, Settings, Home, Brain } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -64,11 +66,12 @@ const DashboardPage = () => {
     }, 3000);
   };
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = async (messageText = null) => {
+    const textToSend = messageText || inputMessage;
+    if (!textToSend.trim()) return;
     const userMessage = {
       id: Date.now(),
-      text: inputMessage,
+      text: textToSend,
       sender: 'user',
       timestamp: new Date().toLocaleTimeString()
     };
@@ -76,7 +79,7 @@ const DashboardPage = () => {
     setInputMessage('');
     setIsLoading(true);
     try {
-      const response = await apiService.queryDocument(inputMessage, isVoiceMode);
+      const response = await apiService.queryDocument(textToSend, isVoiceMode);
       const aiMessage = {
         id: Date.now() + 1,
         text: response.response,
@@ -143,7 +146,7 @@ const DashboardPage = () => {
         return (
           <div className="space-y-6">
             <div className="gradient-bg rounded-2xl p-8 text-white relative overflow-hidden">
-              <div className="relative z-10 max-w-2xl">
+              <div className="relative max-w-2xl">
                 <h1 className="text-3xl font-bold mb-2">Welcome to SOP Interpreter</h1>
                 <p className="text-blue-100 text-lg mb-6">
                   Your intelligent assistant for Standard Operating Procedures. Upload documents, ask questions, and get instant, accurate guidance powered by AI.
@@ -212,6 +215,10 @@ const DashboardPage = () => {
             messages={messages}
           />
         );
+      case 'settings':
+        return <SettingsArea />;
+      case 'profile':
+        return <ProfileArea />;
       default:
         return (
           <div className="text-center py-12">
@@ -229,8 +236,8 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar sidebarItems={sidebarItems} activeTab={activeTab} setActiveTab={setActiveTab} />
-      <div className="flex-1 ml-64 p-8">
+      <Sidebar className="" sidebarItems={sidebarItems} activeTab={activeTab} setActiveTab={setActiveTab} />
+      <div className="flex-1 ml-16 p-8 transition-all duration-300">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
