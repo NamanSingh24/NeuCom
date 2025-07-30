@@ -100,6 +100,47 @@ const DocumentsArea = ({ uploadedFiles = [], onUploadNew }) => {
     });
   };
 
+  // Bulk action handlers
+  const handleDownloadSelected = () => {
+    if (selectedDocs.length === 0) return;
+    
+    selectedDocs.forEach(docId => {
+      const doc = uploadedFiles.find(d => d.id === docId);
+      if (doc) {
+        // Create a download link
+        const link = document.createElement('a');
+        link.href = doc.url || '#';
+        link.download = doc.name || 'document';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    });
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedDocs.length === 0) return;
+    
+    if (window.confirm(`Are you sure you want to delete ${selectedDocs.length} document(s)?`)) {
+      // In a real app, this would call an API to delete the documents
+      console.log('Deleting documents:', selectedDocs);
+      setSelectedDocs([]);
+    }
+  };
+
+  // Pagination handlers
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+  const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage);
+  
+  const handlePreviousPage = () => {
+    setCurrentPage(prev => Math.max(1, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(totalPages, prev + 1));
+  };
+
   const handleSelectDoc = (docId) => {
     setSelectedDocs(prev => 
       prev.includes(docId) 
@@ -272,11 +313,17 @@ const DocumentsArea = ({ uploadedFiles = [], onUploadNew }) => {
               {selectedDocs.length} document(s) selected
             </span>
             <div className="flex gap-2">
-              <button className="flex items-center space-x-2 px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">
+              <button 
+                onClick={handleDownloadSelected}
+                className="flex items-center space-x-2 px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+              >
                 <Download className="h-4 w-4" />
                 <span>Download</span>
               </button>
-              <button className="flex items-center space-x-2 px-3 py-1 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors">
+              <button 
+                onClick={handleDeleteSelected}
+                className="flex items-center space-x-2 px-3 py-1 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
+              >
                 <Trash2 className="h-4 w-4" />
                 <span>Delete</span>
               </button>
@@ -483,13 +530,29 @@ const DocumentsArea = ({ uploadedFiles = [], onUploadNew }) => {
       {filteredDocuments.length > 12 && (
         <div className="flex justify-center">
           <div className="flex border border-gray-300 rounded-lg overflow-hidden">
-            <button className="px-3 py-2 text-sm bg-white text-gray-700 hover:bg-gray-50 transition-colors">
+            <button 
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+              className={`px-3 py-2 text-sm transition-colors ${
+                currentPage === 1 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
               « Previous
             </button>
             <button className="px-3 py-2 text-sm bg-blue-600 text-white border-l border-gray-300">
-              1
+              {currentPage}
             </button>
-            <button className="px-3 py-2 text-sm bg-white text-gray-700 hover:bg-gray-50 border-l border-gray-300 transition-colors">
+            <button 
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-2 text-sm border-l border-gray-300 transition-colors ${
+                currentPage === totalPages 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
               Next »
             </button>
           </div>

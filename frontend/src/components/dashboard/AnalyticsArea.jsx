@@ -18,6 +18,60 @@ import {
 const AnalyticsArea = ({ systemStats, uploadedFiles, messages }) => {
   const [timeRange, setTimeRange] = useState('7d'); // 1d, 7d, 30d, 90d
   const [activeMetric, setActiveMetric] = useState('usage');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Handler functions
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      // Simulate data refresh
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Analytics data refreshed');
+    } catch (error) {
+      console.error('Failed to refresh analytics:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleExportCSV = () => {
+    const currentData = analyticsData[activeMetric];
+    let csvContent = "Metric,Value,Change,Trend\n";
+    
+    currentData.metrics.forEach(metric => {
+      csvContent += `"${metric.name}","${metric.value}","${metric.change}%","${metric.trend}"\n`;
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics_${activeMetric}_${timeRange}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportPDF = () => {
+    // Simple PDF generation simulation
+    const currentData = analyticsData[activeMetric];
+    let content = `Analytics Report - ${currentData.title}\n\n`;
+    
+    currentData.metrics.forEach(metric => {
+      content += `${metric.name}: ${metric.value} (${metric.change}% ${metric.trend})\n`;
+    });
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics_report_${activeMetric}_${timeRange}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   // Mock analytics data for demonstration
   const analyticsData = {
@@ -151,9 +205,15 @@ const AnalyticsArea = ({ systemStats, uploadedFiles, messages }) => {
             <option value="30d">Last 30 Days</option>
             <option value="90d">Last 90 Days</option>
           </select>
-          <button className="flex items-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <RefreshCw className="h-4 w-4" />
-            <span>Refresh</span>
+          <button 
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className={`flex items-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ${
+              isRefreshing ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
         </div>
       </div>
@@ -368,11 +428,17 @@ const AnalyticsArea = ({ systemStats, uploadedFiles, messages }) => {
             <p className="text-gray-600">Download detailed reports for further analysis</p>
           </div>
           <div className="flex space-x-3">
-            <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <button 
+              onClick={handleExportCSV}
+              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
               <Download className="h-4 w-4" />
               <span>Export CSV</span>
             </button>
-            <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button 
+              onClick={handleExportPDF}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
               <Download className="h-4 w-4" />
               <span>Export PDF Report</span>
             </button>

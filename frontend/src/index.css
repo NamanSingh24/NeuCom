@@ -56,6 +56,40 @@
   color: white;
 }
 
+.sidebar-item-collapsible {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  position: relative;
+}
+
+.sidebar-item-collapsible.collapsed {
+  justify-content: center;
+  width: 100%;
+}
+
+.sidebar-item-collapsible.expanded {
+  justify-content: flex-start;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.sidebar-item-collapsible:hover {
+  background-color: #f3f4f6;
+}
+
+.sidebar-item-collapsible.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+.sidebar-item-collapsible.active:hover {
+  background-color: #1d4ed8;
+}
+
 .gradient-bg {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }

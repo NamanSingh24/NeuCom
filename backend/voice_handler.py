@@ -148,8 +148,8 @@ class VoiceHandler:
             
             logger.info("Converting speech to text using local Whisper...")
             
-            # Save uploaded audio to temporary file
-            with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+            # Save uploaded audio to temporary file with original format
+            with tempfile.NamedTemporaryFile(suffix='.webm', delete=False) as temp_file:
                 audio_content = audio_file.read()
                 temp_file.write(audio_content)
                 temp_file_path = temp_file.name
