@@ -15,7 +15,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 
-const AnalyticsArea = ({ systemStats, uploadedFiles, messages }) => {
+const AnalyticsArea = ({ uploadedFiles, messages }) => {
   const [timeRange, setTimeRange] = useState('7d'); // 1d, 7d, 30d, 90d
   const [activeMetric, setActiveMetric] = useState('usage');
   const [isRefreshing, setIsRefreshing] = useState(false);

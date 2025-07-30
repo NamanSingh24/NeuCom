@@ -3,15 +3,17 @@ import Sidebar from '../components/dashboard/Sidebar';
 import StatsGrid from '../components/dashboard/StatsGrid';
 import FeatureHighlights from '../components/dashboard/FeatureHighlights';
 import RecentActivity from '../components/dashboard/RecentActivity';
-import AISystemStatus from '../components/dashboard/AISystemStatus';
 import UploadArea from '../components/dashboard/UploadArea';
 import ChatArea from '../components/dashboard/ChatArea';
 import DocumentsArea from '../components/dashboard/DocumentsArea';
 import AnalyticsArea from '../components/dashboard/AnalyticsArea';
 import SettingsArea from '../components/dashboard/SettingsArea';
 import ProfileArea from '../components/dashboard/ProfileArea';
+import ChatEnhancementPanel from '../components/dashboard/ChatEnhancementPanel';
+import KnowledgeGraphPanel from '../components/dashboard/KnowledgeGraphPanel';
+import KnowledgeGraphSetup from '../components/dashboard/KnowledgeGraphSetup';
 import apiService from '../services/api';
-import { FileText, MessageSquare, Clock, TrendingUp, Upload, BarChart3, Settings, Home, Brain } from 'lucide-react';
+import { FileText, MessageSquare, Clock, TrendingUp, Upload, BarChart3, Settings, Home, Brain, Database } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const DashboardPage = () => {
@@ -22,7 +24,8 @@ const DashboardPage = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({});
-  const [systemStats, setSystemStats] = useState(null);
+  const [contextFilter, setContextFilter] = useState(null);
+  const [documents, setDocuments] = useState([]);
   const fileInputRef = useRef(null);
 
   const sidebarItems = [
@@ -30,20 +33,21 @@ const DashboardPage = () => {
     { id: 'upload', label: 'Upload SOP', icon: Upload },
     { id: 'chat', label: 'SOP Assistant', icon: MessageSquare },
     { id: 'documents', label: 'Documents', icon: FileText },
+    { id: 'knowledge', label: 'Knowledge Graph', icon: Database },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   useEffect(() => {
-    loadSystemStats();
+    loadDocuments();
   }, []);
 
-  const loadSystemStats = async () => {
+  const loadDocuments = async () => {
     try {
-      const stats = await apiService.getStats();
-      setSystemStats(stats);
+      const docs = await apiService.getDocuments();
+      setDocuments(docs.documents || []);
     } catch (error) {
-      console.error('Error loading system stats:', error);
+      console.error('Error loading documents:', error);
     }
   };
 
@@ -56,6 +60,8 @@ const DashboardPage = () => {
         const response = await apiService.uploadDocument(file);
         setUploadedFiles(prev => [...prev, { ...file, id: fileId, processed: true, ...response }]);
         setUploadProgress(prev => ({ ...prev, [fileId]: { file, progress: 100, status: 'completed' } }));
+        // Reload documents after successful upload
+        loadDocuments();
       } catch (error) {
         console.error('Upload error:', error);
         setUploadProgress(prev => ({ ...prev, [fileId]: { file, progress: 0, status: 'error' } }));
@@ -79,7 +85,14 @@ const DashboardPage = () => {
     setInputMessage('');
     setIsLoading(true);
     try {
-      const response = await apiService.queryDocument(textToSend, isVoiceMode);
+      // Use advanced query with context filter if available
+      const response = contextFilter 
+        ? await apiService.queryDocumentAdvanced(textToSend, { 
+            voiceEnabled: isVoiceMode, 
+            contextFilter 
+          })
+        : await apiService.queryDocument(textToSend, isVoiceMode);
+        
       const aiMessage = {
         id: Date.now() + 1,
         text: response.response,
@@ -87,7 +100,8 @@ const DashboardPage = () => {
         timestamp: new Date().toLocaleTimeString(),
         sources: response.sources,
         confidence: response.confidence,
-        intent: response.intent
+        intent: response.intent,
+        usage: response.usage
       };
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
@@ -109,17 +123,22 @@ const DashboardPage = () => {
     setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
   };
 
-  const stats = systemStats ? [
+  // Clear messages function
+  const clearMessages = () => {
+    setMessages([]);
+  };
+
+  const stats = [
     { 
       title: 'Documents Processed', 
-      value: systemStats.vector_db_stats?.total_documents || '0', 
+      value: uploadedFiles.length.toString(), 
       change: '+12%', 
       icon: FileText, 
       color: 'text-blue-600' 
     },
     { 
       title: 'Conversation Length', 
-      value: systemStats.conversation_length || '0', 
+      value: messages.length.toString(), 
       change: '+8%', 
       icon: MessageSquare, 
       color: 'text-green-600' 
@@ -133,12 +152,12 @@ const DashboardPage = () => {
     },
     { 
       title: 'Supported Formats', 
-      value: systemStats.supported_formats?.length || '0', 
+      value: '4', 
       change: 'stable', 
       icon: TrendingUp, 
       color: 'text-orange-600' 
     },
-  ] : [];
+  ];
 
   const renderContent = () => {
     switch (activeTab) {
@@ -171,10 +190,11 @@ const DashboardPage = () => {
               </div>
             </div>
             <StatsGrid stats={stats} />
-            <FeatureHighlights />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
+              <FeatureHighlights />
+            </div>
+            <div className="grid grid-cols-1 gap-6">
               <RecentActivity uploadedFiles={uploadedFiles} />
-              <AISystemStatus systemStats={systemStats} />
             </div>
           </div>
         );
@@ -190,27 +210,46 @@ const DashboardPage = () => {
         );
       case 'chat':
         return (
-          <ChatArea
-            isVoiceMode={isVoiceMode}
-            setIsVoiceMode={setIsVoiceMode}
-            messages={messages}
-            inputMessage={inputMessage}
-            setInputMessage={setInputMessage}
-            handleSendMessage={handleSendMessage}
-            isLoading={isLoading}
-          />
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <div className="xl:col-span-3">
+              <ChatArea
+                isVoiceMode={isVoiceMode}
+                setIsVoiceMode={setIsVoiceMode}
+                messages={messages}
+                inputMessage={inputMessage}
+                setInputMessage={setInputMessage}
+                handleSendMessage={handleSendMessage}
+                isLoading={isLoading}
+                clearMessages={clearMessages}
+              />
+            </div>
+            <div>
+              <ChatEnhancementPanel 
+                onQueryChange={setInputMessage}
+                onContextFilterChange={setContextFilter}
+              />
+            </div>
+          </div>
         );
       case 'documents':
         return (
           <DocumentsArea
-            uploadedFiles={uploadedFiles}
+            uploadedFiles={documents}
             onUploadNew={() => setActiveTab('upload')}
           />
+        );
+      case 'knowledge':
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <KnowledgeGraphSetup />
+            <KnowledgeGraphPanel 
+              documents={documents}
+            />
+          </div>
         );
       case 'analytics':
         return (
           <AnalyticsArea
-            systemStats={systemStats}
             uploadedFiles={uploadedFiles}
             messages={messages}
           />

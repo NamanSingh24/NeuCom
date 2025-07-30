@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Mic, MicOff, Loader2, Send, AlertCircle } from 'lucide-react';
+import { MessageSquare, Mic, MicOff, Loader2, Send, AlertCircle, Volume2, VolumeX, Trash2, Settings } from 'lucide-react';
 import voiceManager from '../../utils/voiceManager';
+import { apiService } from '../../services/api';
 
 const ChatArea = ({
   isVoiceMode,
@@ -9,12 +10,26 @@ const ChatArea = ({
   inputMessage,
   setInputMessage,
   handleSendMessage,
-  isLoading
+  isLoading,
+  clearMessages
 }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [voiceError, setVoiceError] = useState(null);
   const [voiceSupport, setVoiceSupport] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState(null);
+  const [selectedVoice, setSelectedVoice] = useState('nova');
+  const [voiceSpeed, setVoiceSpeed] = useState(0.9);
+  const [availableVoices, setAvailableVoices] = useState([
+    { id: 'nova', name: 'Nova (Recommended)', description: 'Natural and clear' },
+    { id: 'alloy', name: 'Alloy', description: 'Balanced and professional' },
+    { id: 'echo', name: 'Echo', description: 'Deeper and resonant' },
+    { id: 'fable', name: 'Fable', description: 'Expressive and engaging' },
+    { id: 'onyx', name: 'Onyx', description: 'Deep and authoritative' },
+    { id: 'shimmer', name: 'Shimmer', description: 'Bright and energetic' }
+  ]);
 
   useEffect(() => {
     // Check voice support on component mount
@@ -25,6 +40,22 @@ const ChatArea = ({
       setVoiceError('Voice recording is not supported in this browser');
     }
   }, [isVoiceMode]);
+
+  // Auto-synthesize new AI responses when voice is enabled
+  useEffect(() => {
+    if (!voiceEnabled || messages.length === 0) return;
+    
+    const latestMessage = messages[messages.length - 1];
+    if (latestMessage && 
+        (latestMessage.sender === 'ai' || latestMessage.sender === 'assistant') && 
+        !latestMessage.isError &&
+        latestMessage.text) {
+      // Small delay to ensure UI is updated
+      setTimeout(() => {
+        synthesizeResponse(latestMessage.text);
+      }, 300);
+    }
+  }, [messages, voiceEnabled]);
 
   const handleVoiceModeToggle = async () => {
     if (!isVoiceMode) {
@@ -96,7 +127,76 @@ const ChatArea = ({
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !isLoading && !isRecording && !isTranscribing) {
-      handleSendMessage();
+      handleSendWithVoice();
+    }
+  };
+
+  // Voice synthesis for AI responses
+  const synthesizeResponse = async (text) => {
+    if (!voiceEnabled || !text) return;
+    
+    try {
+      setIsSpeaking(true);
+      setVoiceError(null);
+      
+      // Stop any currently playing audio
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+      
+      console.log('Synthesizing speech for:', text.substring(0, 50) + '...');
+      const audioBlob = await apiService.synthesizeSpeech(text, selectedVoice, voiceSpeed);
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      
+      setCurrentAudio(audio);
+      
+      audio.onended = () => {
+        setIsSpeaking(false);
+        URL.revokeObjectURL(audioUrl);
+        setCurrentAudio(null);
+      };
+      
+      audio.onerror = (error) => {
+        setIsSpeaking(false);
+        console.error('Audio playback failed:', error);
+        setVoiceError('Audio playback failed');
+        setCurrentAudio(null);
+      };
+      
+      await audio.play();
+    } catch (error) {
+      console.error('Speech synthesis failed:', error);
+      setIsSpeaking(false);
+      setVoiceError('Speech synthesis failed: ' + error.message);
+      setCurrentAudio(null);
+    }
+  };
+
+  // Stop current speech
+  const stopSpeech = () => {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setCurrentAudio(null);
+    }
+    setIsSpeaking(false);
+  };
+
+  // Enhanced send message with voice synthesis
+  const handleSendWithVoice = async () => {
+    await handleSendMessage();
+    // Voice synthesis is now handled by useEffect
+  };
+
+  // Clear conversation
+  const handleClearConversation = () => {
+    if (currentAudio) {
+      stopSpeech();
+    }
+    if (clearMessages) {
+      clearMessages();
     }
   };
 
@@ -156,6 +256,80 @@ const ChatArea = ({
       )}
 
       <div className="card-corporate p-6 h-[600px] flex flex-col">
+        {/* Header with voice controls and clear button */}
+        <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
+          <div className="flex items-center space-x-4">
+            <h3 className="text-lg font-semibold text-gray-900">SOP Chat Assistant</h3>
+            
+            {/* Voice Response Toggle */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setVoiceEnabled(!voiceEnabled)}
+                className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm transition-colors ${
+                  voiceEnabled 
+                    ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+                title={voiceEnabled ? 'Disable voice responses' : 'Enable voice responses'}
+              >
+                {voiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                <span>{voiceEnabled ? 'Voice On' : 'Voice Off'}</span>
+              </button>
+              
+              {/* Voice Settings */}
+              {voiceEnabled && (
+                <div className="flex items-center space-x-2">
+                  <select
+                    value={selectedVoice}
+                    onChange={(e) => setSelectedVoice(e.target.value)}
+                    className="text-xs px-2 py-1 border rounded-md bg-white"
+                    title="Select voice"
+                  >
+                    {availableVoices.map(voice => (
+                      <option key={voice.id} value={voice.id}>
+                        {voice.name}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="1.5"
+                    step="0.1"
+                    value={voiceSpeed}
+                    onChange={(e) => setVoiceSpeed(parseFloat(e.target.value))}
+                    className="w-16 h-1"
+                    title={`Speed: ${voiceSpeed}x`}
+                  />
+                  <span className="text-xs text-gray-500">{voiceSpeed}x</span>
+                </div>
+              )}
+              
+              {/* Stop Speech Button */}
+              {isSpeaking && (
+                <button
+                  onClick={stopSpeech}
+                  className="flex items-center space-x-1 px-2 py-1 bg-red-100 text-red-700 rounded-full text-sm hover:bg-red-200 transition-colors"
+                  title="Stop speech"
+                >
+                  <VolumeX className="h-3 w-3" />
+                  <span>Stop</span>
+                </button>
+              )}
+            </div>
+          </div>
+          
+          {/* Clear Conversation Button */}
+          <button
+            onClick={handleClearConversation}
+            disabled={isLoading || isRecording || isTranscribing}
+            className="flex items-center space-x-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Clear conversation"
+          >
+            <Trash2 className="h-4 w-4" />
+            <span className="text-sm font-medium">Clear</span>
+          </button>
+        </div>
         <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2">
           {messages.length === 0 ? (
             <div className="text-center text-gray-500 py-12">
@@ -192,7 +366,25 @@ const ChatArea = ({
                       : 'bg-gray-100 text-gray-900'
                   }`}
                 >
-                  <p className="text-sm">{message.text}</p>
+                  <div className="flex items-start justify-between">
+                    <p className="text-sm flex-1">{message.text}</p>
+                    
+                    {/* Voice synthesis button for AI responses */}
+                    {message.sender === 'assistant' && !message.isError && (
+                      <button
+                        onClick={() => synthesizeResponse(message.text)}
+                        disabled={isSpeaking}
+                        className={`ml-2 p-1 rounded-full transition-colors ${
+                          isSpeaking 
+                            ? 'text-green-600 animate-pulse' 
+                            : 'text-gray-400 hover:text-blue-600'
+                        }`}
+                        title={`Play with ${availableVoices.find(v => v.id === selectedVoice)?.name || selectedVoice} voice`}
+                      >
+                        <Volume2 className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
                   {message.sources && message.sources.length > 0 && (
                     <div className="mt-2 text-xs opacity-75">
                       <p>Sources: {message.sources.join(', ')}</p>
@@ -221,6 +413,21 @@ const ChatArea = ({
               <div className="bg-blue-100 px-4 py-3 rounded-lg flex items-center space-x-2">
                 <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                 <span className="text-sm text-blue-600">Transcribing audio...</span>
+              </div>
+            </div>
+          )}
+          {isSpeaking && (
+            <div className="flex justify-start">
+              <div className="bg-green-100 px-4 py-3 rounded-lg flex items-center space-x-2">
+                <Volume2 className="h-4 w-4 animate-pulse text-green-600" />
+                <span className="text-sm text-green-600">Speaking response...</span>
+                <button
+                  onClick={stopSpeech}
+                  className="ml-2 text-green-500 hover:text-green-700"
+                  title="Stop speech"
+                >
+                  <VolumeX className="h-3 w-3" />
+                </button>
               </div>
             </div>
           )}
@@ -256,7 +463,7 @@ const ChatArea = ({
             </button>
           )}
           <button
-            onClick={handleSendMessage}
+            onClick={handleSendWithVoice}
             disabled={isLoading || !inputMessage.trim() || isRecording || isTranscribing}
             className="btn-corporate flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >

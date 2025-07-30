@@ -186,14 +186,8 @@ class SOPChat:
             
             relevant_docs = self.rag_engine.search_documents(query, **search_params)
 
-            # === KG Filtering step ===
-            # You may need to import get_neo4j_driver at the top if not already
-          
-            kg_driver = get_neo4j_driver()
-            # If filter_rag_results_with_kg is a method of RAGEngine:
-            filtered_docs = self.rag_engine.filter_rag_results_with_kg(relevant_docs, query, kg_driver)
-            # If it's a standalone function, use: filtered_docs = filter_rag_results_with_kg(relevant_docs, query, kg_driver)
-            # =========================
+            # Knowledge Graph filtering is now integrated into search_documents method
+            # No need for separate KG filtering step - it's automatically applied
 
             # Add current procedure context if active
             if self.current_procedure:
@@ -210,7 +204,7 @@ class SOPChat:
             # Generate response
             response_data = self.groq_client.generate_response(
                 query=enhanced_query,
-                context=filtered_docs,  # <--- Use KG-filtered docs here!
+                context=relevant_docs,  # Already includes KG filtering
                 conversation_history=self.conversation_history[-6:]  # Last 6 messages
             )
             

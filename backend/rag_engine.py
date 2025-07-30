@@ -6,9 +6,19 @@ from pathlib import Path
 import warnings
 from pathlib import Path
 from datetime import datetime
-# KG Integration
-from Knowledge_Graph.kg_utils import get_neo4j_driver, get_steps_related_to_entity
-from Knowledge_Graph.kg_utils import extract_entities_from_query
+
+# Knowledge Graph imports
+try:
+    from Knowledge_Graph.kg_utils import extract_entities_from_query, filter_rag_results_with_kg
+    from Knowledge_Graph.ingestion import get_neo4j_driver
+    KG_AVAILABLE = True
+    logger = logging.getLogger(__name__)
+    logger.info("✓ Knowledge Graph utilities imported successfully")
+except Exception as e:
+    logger = logging.getLogger(__name__)
+    logger.warning(f"Knowledge Graph utilities not available: {e}")
+    KG_AVAILABLE = False
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,8 +26,8 @@ logger = logging.getLogger(__name__)
 # ChromaDB import with proper error handling
 try:
     import chromadb
-    from chromadb.config import Settings
     CHROMADB_AVAILABLE = True
+    logger.info("✓ ChromaDB imported successfully")
     logger.info("✓ ChromaDB imported successfully")
 except Exception as e:
     logger.warning(f"ChromaDB not available: {e}")
@@ -120,8 +130,7 @@ class RAGEngine:
         try:
             self.client = chromadb.PersistentClient(path=self.db_path)
             self.collection = self.client.get_or_create_collection(
-                name="sop_documents",
-                metadata={"hnsw:space": "cosine"}
+                name="sop_documents"
             )
             logger.info(f"ChromaDB initialized at {self.db_path}")
         except Exception as e:
@@ -135,6 +144,22 @@ class RAGEngine:
         except Exception as e:
             logger.error(f"Error loading embedding model: {str(e)}")
             raise
+        
+        # Initialize Knowledge Graph driver
+        self.kg_driver = None
+        self.kg_available = False
+        if KG_AVAILABLE:
+            try:
+                self.kg_driver = get_neo4j_driver()
+                # Test connection
+                with self.kg_driver.session() as session:
+                    session.run("RETURN 1")
+                self.kg_available = True
+                logger.info("Knowledge Graph driver initialized successfully")
+            except Exception as e:
+                logger.warning(f"Knowledge Graph not available: {e}")
+                self.kg_driver = None
+                self.kg_available = False
     
     def add_documents(self, documents: List[Dict]) -> Dict[str, Any]:
         """Add documents to vector database"""
@@ -185,16 +210,16 @@ class RAGEngine:
             return {"status": "error", "message": str(e)}
     
     def search_documents(self, query: str, n_results: int = None, filter_metadata: Dict = None) -> List[Dict]:
-        """Search for relevant documents"""
+        """Search for relevant documents with Knowledge Graph filtering"""
         try:
             n_results = n_results or self.max_search_results
             
             # Generate query embedding
             query_embedding = self.embedding_model.encode([query]).tolist()
             
-            # Prepare search parameters
+            # Prepare search parameters for ChromaDB 0.5.x
             search_params = {
-                "query_embeddings": query_embedding,
+                "query_texts": [query],  # Use query_texts instead of query_embeddings
                 "n_results": min(n_results, self.collection.count()),
                 "include": ['documents', 'metadatas', 'distances']
             }
@@ -206,7 +231,7 @@ class RAGEngine:
             # Perform search
             results = self.collection.query(**search_params)
             
-            # Format results
+            # Format initial results
             formatted_results = []
             if results['documents'] and results['documents'][0]:
                 for i in range(len(results['documents'][0])):
@@ -218,10 +243,37 @@ class RAGEngine:
                         'distance': results['distances'][0][i]
                     })
             
+            # Apply Knowledge Graph filtering if available
+            if self.kg_available and KG_AVAILABLE:
+                try:
+                    logger.info(f"Applying Knowledge Graph filtering for query: {query[:50]}...")
+                    
+                    # Extract entities from query
+                    entities = extract_entities_from_query(query)
+                    logger.info(f"Extracted entities: {entities}")
+                    
+                    # Apply KG filtering
+                    kg_filtered_results = filter_rag_results_with_kg(
+                        rag_results=formatted_results,
+                        query=query,
+                        driver=self.kg_driver
+                    )
+                    
+                    if kg_filtered_results:
+                        formatted_results = kg_filtered_results
+                        logger.info(f"Knowledge Graph filtering applied: {len(formatted_results)} results after KG filtering")
+                    else:
+                        logger.info("No KG filtering applied - using original RAG results")
+                        
+                except Exception as e:
+                    logger.warning(f"Knowledge Graph filtering failed, using RAG results only: {str(e)}")
+            else:
+                logger.info("Knowledge Graph not available - using RAG results only")
+            
             # Sort by relevance score
             formatted_results.sort(key=lambda x: x['relevance_score'], reverse=True)
             
-            logger.info(f"Found {len(formatted_results)} relevant documents for query: {query[:50]}...")
+            logger.info(f"Final results: {len(formatted_results)} documents for query: {query[:50]}...")
             return formatted_results
             
         except Exception as e:
@@ -264,29 +316,33 @@ class RAGEngine:
             # Get the document
             doc_result = self.collection.get(
                 ids=[document_id],
-                include=['embeddings', 'documents', 'metadatas']
+                include=['documents', 'metadatas']
             )
             
-            if not doc_result['embeddings']:
+            if not doc_result['documents'] or not doc_result['documents'][0]:
                 return []
             
-            # Use the document's embedding to find similar ones
+            # Use the document's text to find similar ones via text search
+            # (ChromaDB 0.5.x handles embeddings internally when using query_texts)
+            original_text = doc_result['documents'][0]
+            
             results = self.collection.query(
-                query_embeddings=doc_result['embeddings'],
+                query_texts=[original_text],
                 n_results=n_results + 1,  # +1 to exclude the original document
                 include=['documents', 'metadatas', 'distances']
             )
             
             # Format and filter out the original document
             formatted_results = []
-            for i in range(len(results['documents'][0])):
-                if results['documents'][0][i] != doc_result['documents'][0]:
-                    formatted_results.append({
-                        'text': results['documents'][0][i],
-                        'metadata': results['metadatas'][0][i],
-                        'relevance_score': 1 - results['distances'][0][i],
-                        'distance': results['distances'][0][i]
-                    })
+            if results['documents'] and results['documents'][0]:
+                for i in range(len(results['documents'][0])):
+                    if results['documents'][0][i] != original_text:
+                        formatted_results.append({
+                            'text': results['documents'][0][i],
+                            'metadata': results['metadatas'][0][i],
+                            'relevance_score': 1 - results['distances'][0][i],
+                            'distance': results['distances'][0][i]
+                        })
             
             return formatted_results[:n_results]
             
@@ -412,26 +468,16 @@ class RAGEngine:
         except Exception as e:
             logger.error(f"Error exporting documents: {str(e)}")
             return {"status": "error", "message": str(e)}
-    # KG integration
-    def filter_rag_results_with_kg(self, rag_results, query, driver):
-        """
-        Use KG to filter or expand RAG results.
-        E.g., only keep RAG results that are related to entities found in the KG.
-        """
-        # Example: extract entities from query (use spaCy, regex, or LLM for real use)
-        entities = extract_entities_from_query(query)  # You need to implement this
-        print(f"[KG] Entities for filtering: {entities}")
-        relevant_step_ids = set()
-        for entity in entities:
-            steps = get_steps_related_to_entity(entity, driver)
-            step_ids = [step['id'] for step in steps if 'id' in step]
-            print(f"[KG] Steps found for entity '{entity}': {step_ids}")
-            relevant_step_ids.update(step_ids)
-        # Filter RAG results
-        filtered = [res for res in rag_results if res['metadata'].get('chunk_id') in relevant_step_ids]
-        if filtered:
-            print(f"[KG] Filtered RAG results using KG: {len(filtered)}")
-        else:
-            print("[KG] No relevant KG results, returning original RAG results.")
-        # If nothing found, fallback to original RAG results
-        return filtered if filtered else rag_results
+    
+    def close(self):
+        """Close KG driver and cleanup resources"""
+        if self.kg_driver:
+            try:
+                self.kg_driver.close()
+                logger.info("Knowledge Graph driver closed successfully")
+            except Exception as e:
+                logger.warning(f"Error closing KG driver: {e}")
+    
+    def __del__(self):
+        """Cleanup on deletion"""
+        self.close()

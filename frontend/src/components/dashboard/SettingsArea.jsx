@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import apiService from '../../services/api';
 import {
   Settings,
   User,
@@ -50,18 +51,28 @@ const SettingsArea = () => {
     ipWhitelist: '',
     
     // AI Settings
-    aiModel: 'groq-mixtral',
+    aiModel: 'llama3-8b-8192',
     responseLength: 'medium',
     confidence: 0.8,
     voiceEnabled: true,
     autoProcessing: true,
+    temperature: 0.3,
+    maxTokens: 1000,
     
     // System Settings
-    maxFileSize: 10,
+    maxFileSize: 50,
     chunkSize: 1000,
+    chunkOverlap: 200,
+    embeddingModel: 'all-MiniLM-L6-v2',
+    maxSearchResults: 5,
     vectorDimensions: 1536,
     backupFrequency: 'daily',
     logLevel: 'info',
+    
+    // Voice Settings
+    ttsVoice: 'en',
+    sttModel: 'base',
+    voiceSpeed: 1.0,
     
     // Notification Settings
     emailNotifications: true,
@@ -74,6 +85,70 @@ const SettingsArea = () => {
   const [showApiKey, setShowApiKey] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null);
+
+  // Load settings from backend on mount
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const response = await apiService.getSettings();
+      if (response.success) {
+        // Map backend settings to frontend format
+        const backendSettings = response.settings;
+        setSettings({
+          // General Settings
+          language: backendSettings.language || 'en',
+          timezone: backendSettings.timezone || 'UTC',
+          theme: backendSettings.theme || 'light',
+          autoSave: backendSettings.auto_save !== undefined ? backendSettings.auto_save : true,
+          notifications: backendSettings.notifications !== undefined ? backendSettings.notifications : true,
+          
+          // Security Settings
+          twoFactorAuth: backendSettings.two_factor_auth || false,
+          sessionTimeout: backendSettings.session_timeout || 30,
+          passwordExpiry: backendSettings.password_expiry || 90,
+          ipWhitelist: backendSettings.ip_whitelist || '',
+          
+          // AI Settings
+          aiModel: backendSettings.ai_model || 'llama3-8b-8192',
+          responseLength: backendSettings.response_length || 'medium',
+          confidence: backendSettings.confidence || 0.8,
+          voiceEnabled: backendSettings.voice_enabled !== undefined ? backendSettings.voice_enabled : true,
+          autoProcessing: backendSettings.auto_processing !== undefined ? backendSettings.auto_processing : true,
+          temperature: backendSettings.temperature || 0.3,
+          maxTokens: backendSettings.max_tokens || 1000,
+          
+          // System Settings
+          maxFileSize: backendSettings.max_file_size || 50,
+          chunkSize: backendSettings.chunk_size || 1000,
+          chunkOverlap: backendSettings.chunk_overlap || 200,
+          embeddingModel: backendSettings.embedding_model || 'all-MiniLM-L6-v2',
+          maxSearchResults: backendSettings.max_search_results || 5,
+          vectorDimensions: 1536, // Not configurable in backend
+          backupFrequency: backendSettings.backup_frequency || 'daily',
+          logLevel: backendSettings.log_level || 'info',
+          
+          // Voice Settings
+          ttsVoice: backendSettings.tts_voice || 'en',
+          sttModel: backendSettings.stt_model || 'base',
+          voiceSpeed: backendSettings.voice_speed || 1.0,
+          
+          // Notification Settings
+          emailNotifications: backendSettings.email_notifications !== undefined ? backendSettings.email_notifications : true,
+          pushNotifications: backendSettings.push_notifications || false,
+          documentProcessed: backendSettings.document_processed !== undefined ? backendSettings.document_processed : true,
+          systemAlerts: backendSettings.system_alerts !== undefined ? backendSettings.system_alerts : true,
+          weeklyReports: backendSettings.weekly_reports || false
+        });
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus(null), 3000);
+    }
+  };
 
   const settingsTabs = [
     { id: 'general', label: 'General', icon: Settings },
@@ -91,11 +166,61 @@ const SettingsArea = () => {
   const handleSaveSettings = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setSaveStatus('success');
+      // Map frontend settings to backend format
+      const backendSettings = {
+        // General Settings
+        language: settings.language,
+        timezone: settings.timezone,
+        theme: settings.theme,
+        auto_save: settings.autoSave,
+        notifications: settings.notifications,
+        
+        // Security Settings
+        two_factor_auth: settings.twoFactorAuth,
+        session_timeout: settings.sessionTimeout,
+        password_expiry: settings.passwordExpiry,
+        ip_whitelist: settings.ipWhitelist,
+        
+        // AI Settings
+        ai_model: settings.aiModel,
+        response_length: settings.responseLength,
+        confidence: settings.confidence,
+        voice_enabled: settings.voiceEnabled,
+        auto_processing: settings.autoProcessing,
+        temperature: settings.temperature,
+        max_tokens: settings.maxTokens,
+        
+        // System Settings
+        max_file_size: settings.maxFileSize,
+        chunk_size: settings.chunkSize,
+        chunk_overlap: settings.chunkOverlap,
+        embedding_model: settings.embeddingModel,
+        max_search_results: settings.maxSearchResults,
+        backup_frequency: settings.backupFrequency,
+        log_level: settings.logLevel,
+        
+        // Voice Settings
+        tts_voice: settings.ttsVoice,
+        stt_model: settings.sttModel,
+        voice_speed: settings.voiceSpeed,
+        
+        // Notification Settings
+        email_notifications: settings.emailNotifications,
+        push_notifications: settings.pushNotifications,
+        document_processed: settings.documentProcessed,
+        system_alerts: settings.systemAlerts,
+        weekly_reports: settings.weeklyReports
+      };
+
+      const response = await apiService.updateSettings(backendSettings);
+      if (response.success) {
+        setSaveStatus('success');
+      } else {
+        throw new Error(response.message || 'Failed to save settings');
+      }
       setTimeout(() => setSaveStatus(null), 3000);
     } catch (error) {
+      console.error('Error saving settings:', error);
       setSaveStatus('error');
       setTimeout(() => setSaveStatus(null), 3000);
     } finally {
@@ -103,38 +228,26 @@ const SettingsArea = () => {
     }
   };
 
-    const handleResetSettings = () => {
+  const handleResetSettings = async () => {
     if (confirm('Are you sure you want to reset all settings to default? This action cannot be undone.')) {
-      // Reset to default settings
-      setSettings({
-        language: 'en',
-        timezone: 'UTC',
-        theme: 'light',
-        autoSave: true,
-        notifications: true,
-        twoFactorAuth: false,
-        sessionTimeout: 30,
-        passwordExpiry: 90,
-        ipWhitelist: '',
-        aiModel: 'groq-mixtral',
-        responseLength: 'medium',
-        groqApiKey: 'sk-example-key-here',
-        temperature: 0.7,
-        maxTokens: 1000,
-        systemMaintenanceMode: false,
-        debugMode: false,
-        logLevel: 'info',
-        emailNotifications: true,
-        pushNotifications: false,
-        weeklyReports: true,
-        maintenanceAlerts: true,
-        backupFrequency: 'daily',
-        retentionPeriod: 30,
-        compressionEnabled: true,
-        encryptionEnabled: true
-      });
-      setSaveStatus('success');
-      setTimeout(() => setSaveStatus(null), 3000);
+      setIsLoading(true);
+      try {
+        const response = await apiService.resetSettings();
+        if (response.success) {
+          // Reload settings from backend after reset
+          await loadSettings();
+          setSaveStatus('success');
+        } else {
+          throw new Error(response.message || 'Failed to reset settings');
+        }
+        setTimeout(() => setSaveStatus(null), 3000);
+      } catch (error) {
+        console.error('Error resetting settings:', error);
+        setSaveStatus('error');
+        setTimeout(() => setSaveStatus(null), 3000);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 

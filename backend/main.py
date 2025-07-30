@@ -14,6 +14,9 @@ from datetime import datetime
 import mimetypes
 from io import BytesIO
 
+# Fix tokenizers parallelism warning
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 # Import our modules
 from document_processor import DocumentProcessor
 from rag_engine import RAGEngine
@@ -86,8 +89,12 @@ try:
     with kg_driver.session() as session:
         session.run("RETURN 1")
     logger.info("Neo4j connection healthy: Successfully connected and ran test query.")
+    kg_available = True
 except Exception as e:
     logger.error(f"Neo4j health check failed: {e}")
+    logger.warning("Knowledge Graph features will be limited")
+    kg_driver = None
+    kg_available = False
 
 # Pydantic models
 class QueryRequest(BaseModel):
@@ -122,6 +129,55 @@ class DocumentUploadResponse(BaseModel):
     file_type: str
     file_size_mb: float
 
+class SettingsRequest(BaseModel):
+    # General Settings
+    language: Optional[str] = Field(default="en")
+    timezone: Optional[str] = Field(default="UTC")
+    theme: Optional[str] = Field(default="light")
+    auto_save: Optional[bool] = Field(default=True)
+    notifications: Optional[bool] = Field(default=True)
+    
+    # Security Settings
+    two_factor_auth: Optional[bool] = Field(default=False)
+    session_timeout: Optional[int] = Field(default=30, ge=5, le=480)
+    password_expiry: Optional[int] = Field(default=90, ge=30, le=365)
+    ip_whitelist: Optional[str] = Field(default="")
+    
+    # AI Settings
+    ai_model: Optional[str] = Field(default="llama3-8b-8192")
+    response_length: Optional[str] = Field(default="medium")
+    confidence: Optional[float] = Field(default=0.8, ge=0.0, le=1.0)
+    voice_enabled: Optional[bool] = Field(default=True)
+    auto_processing: Optional[bool] = Field(default=True)
+    temperature: Optional[float] = Field(default=0.3, ge=0.0, le=2.0)
+    max_tokens: Optional[int] = Field(default=1000, ge=100, le=4000)
+    
+    # System Settings
+    max_file_size: Optional[int] = Field(default=50, ge=1, le=500)  # MB
+    chunk_size: Optional[int] = Field(default=1000, ge=100, le=4000)
+    chunk_overlap: Optional[int] = Field(default=200, ge=0, le=1000)
+    embedding_model: Optional[str] = Field(default="all-MiniLM-L6-v2")
+    max_search_results: Optional[int] = Field(default=5, ge=1, le=20)
+    backup_frequency: Optional[str] = Field(default="daily")
+    log_level: Optional[str] = Field(default="info")
+    
+    # Voice Settings
+    tts_voice: Optional[str] = Field(default="en")
+    stt_model: Optional[str] = Field(default="base")
+    voice_speed: Optional[float] = Field(default=1.0, ge=0.25, le=4.0)
+    
+    # Notification Settings
+    email_notifications: Optional[bool] = Field(default=True)
+    push_notifications: Optional[bool] = Field(default=False)
+    document_processed: Optional[bool] = Field(default=True)
+    system_alerts: Optional[bool] = Field(default=True)
+    weekly_reports: Optional[bool] = Field(default=False)
+
+class SettingsResponse(BaseModel):
+    success: bool
+    message: str
+    settings: Dict[str, Any]
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():
@@ -134,7 +190,8 @@ async def health_check():
             "rag_engine": "ok",
             "groq_client": "ok",
             "voice_handler": "ok" if voice_available else "disabled",
-            "voice_system": "open-source" if voice_available else "none"
+            "voice_system": "open-source" if voice_available else "none",
+            "knowledge_graph": "ok" if kg_available else "disabled"
         }
     }
 
@@ -208,14 +265,15 @@ async def upload_document(file: UploadFile = File(...)):
                 })
             
             # Store in Neo4j
-            try:
-                kg_driver = get_neo4j_driver()
-                ingest_sop_to_kg(sop_data, kg_driver)
-                logger.info(f"SOP stored in Neo4j with id {sop_id}")
-            except Exception as e:
-                logger.error(f"Failed to store SOP in Neo4j: {e}")
-                logger.warning(f"Upload succeeded but SOP was NOT stored in Neo4j for file: {file.filename}")
-                # Optionally, you can raise an HTTPException here if you want to fail the upload
+            if kg_available:
+                try:
+                    ingest_sop_to_kg(sop_data, kg_driver)
+                    logger.info(f"SOP stored in Neo4j with id {sop_id}")
+                except Exception as e:
+                    logger.error(f"Failed to store SOP in Neo4j: {e}")
+                    logger.warning(f"Upload succeeded but SOP was NOT stored in Neo4j for file: {file.filename}")
+            else:
+                logger.warning(f"Neo4j not available - SOP {sop_id} not stored in Knowledge Graph")
             
             return DocumentUploadResponse(
                 success=True,
@@ -466,6 +524,98 @@ async def get_available_voices():
         logger.error(f"Error getting voices: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Knowledge Graph endpoints
+@app.get("/kg/status")
+async def get_kg_status():
+    """Get Knowledge Graph status and statistics"""
+    try:
+        if not kg_available:
+            return {
+                "available": False,
+                "message": "Knowledge Graph not available",
+                "neo4j_connection": False
+            }
+        
+        # Get basic KG statistics
+        try:
+            with kg_driver.session() as session:
+                # Count nodes and relationships
+                node_count = session.run("MATCH (n) RETURN count(n) as count").single()["count"]
+                rel_count = session.run("MATCH ()-[r]->() RETURN count(r) as count").single()["count"]
+                sop_count = session.run("MATCH (s:SOP) RETURN count(s) as count").single()["count"]
+                step_count = session.run("MATCH (s:Step) RETURN count(s) as count").single()["count"]
+                
+                return {
+                    "available": True,
+                    "neo4j_connection": True,
+                    "statistics": {
+                        "total_nodes": node_count,
+                        "total_relationships": rel_count,
+                        "sop_count": sop_count,
+                        "step_count": step_count
+                    }
+                }
+        except Exception as e:
+            logger.error(f"Error getting KG statistics: {e}")
+            return {
+                "available": True,
+                "neo4j_connection": False,
+                "error": str(e)
+            }
+    except Exception as e:
+        logger.error(f"Error checking KG status: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/kg/entities/{entity_name}")
+async def get_entity_steps(entity_name: str):
+    """Get steps related to a specific entity"""
+    try:
+        if not kg_available:
+            raise HTTPException(status_code=503, detail="Knowledge Graph not available")
+        
+        # Import the entity query function
+        from Knowledge_Graph.kg_utils import get_steps_related_to_entity
+        
+        steps = get_steps_related_to_entity(entity_name, kg_driver)
+        return {
+            "entity": entity_name,
+            "related_steps": steps,
+            "count": len(steps)
+        }
+    except Exception as e:
+        logger.error(f"Error getting entity steps: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/kg/sops")
+async def list_kg_sops():
+    """List all SOPs in the Knowledge Graph"""
+    try:
+        if not kg_available:
+            raise HTTPException(status_code=503, detail="Knowledge Graph not available")
+        
+        with kg_driver.session() as session:
+            result = session.run("""
+                MATCH (s:SOP)
+                OPTIONAL MATCH (s)-[:HAS_STEP]->(step:Step)
+                RETURN s.id as sop_id, s.title as title, s.created_at as created_at,
+                       count(step) as step_count
+                ORDER BY s.created_at DESC
+            """)
+            
+            sops = []
+            for record in result:
+                sops.append({
+                    "id": record["sop_id"],
+                    "title": record["title"],
+                    "created_at": record["created_at"],
+                    "step_count": record["step_count"]
+                })
+            
+            return {"sops": sops, "total": len(sops)}
+    except Exception as e:
+        logger.error(f"Error listing KG SOPs: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Document management
 @app.get("/documents")
 async def list_uploaded_documents():
@@ -507,7 +657,156 @@ async def delete_document(filename: str):
         logger.error(f"Error deleting document: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Settings endpoints
+@app.get("/settings")
+async def get_settings():
+    """Get current application settings"""
+    try:
+        current_settings = {
+            # General Settings
+            "language": os.getenv("LANGUAGE", "en"),
+            "timezone": os.getenv("TIMEZONE", "UTC"),
+            "theme": "light",  # Default theme
+            "auto_save": True,
+            "notifications": True,
+            
+            # AI Settings
+            "ai_model": os.getenv("LLM_MODEL", "llama3-8b-8192"),
+            "response_length": "medium",
+            "confidence": 0.8,
+            "voice_enabled": True,
+            "auto_processing": True,
+            "temperature": float(os.getenv("TEMPERATURE", "0.3")),
+            "max_tokens": int(os.getenv("MAX_TOKENS", "1000")),
+            
+            # System Settings
+            "max_file_size": int(os.getenv("MAX_FILE_SIZE", "50").replace("MB", "")),
+            "chunk_size": int(os.getenv("CHUNK_SIZE", "1000")),
+            "chunk_overlap": int(os.getenv("CHUNK_OVERLAP", "200")),
+            "embedding_model": os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2"),
+            "max_search_results": int(os.getenv("MAX_SEARCH_RESULTS", "5")),
+            "backup_frequency": "daily",
+            "log_level": "info",
+            
+            # Voice Settings
+            "tts_voice": os.getenv("TTS_VOICE", "en"),
+            "stt_model": os.getenv("STT_MODEL", "base"),
+            "voice_speed": 1.0,
+            
+            # Security Settings (defaults)
+            "two_factor_auth": False,
+            "session_timeout": 30,
+            "password_expiry": 90,
+            "ip_whitelist": "",
+            
+            # Notification Settings (defaults)
+            "email_notifications": True,
+            "push_notifications": False,
+            "document_processed": True,
+            "system_alerts": True,
+            "weekly_reports": False
+        }
+        
+        return {
+            "success": True,
+            "settings": current_settings
+        }
+    except Exception as e:
+        logger.error(f"Error getting settings: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/settings", response_model=SettingsResponse)
+async def update_settings(settings: SettingsRequest):
+    """Update application settings"""
+    try:
+        updated_settings = {}
+        
+        # Map settings to environment variables and update .env file
+        env_mappings = {
+            "ai_model": "LLM_MODEL",
+            "temperature": "TEMPERATURE", 
+            "max_tokens": "MAX_TOKENS",
+            "max_file_size": "MAX_FILE_SIZE",
+            "chunk_size": "CHUNK_SIZE",
+            "chunk_overlap": "CHUNK_OVERLAP",
+            "embedding_model": "EMBEDDING_MODEL",
+            "max_search_results": "MAX_SEARCH_RESULTS",
+            "tts_voice": "TTS_VOICE",
+            "stt_model": "STT_MODEL"
+        }
+        
+        # Update environment variables
+        for setting_key, env_key in env_mappings.items():
+            if hasattr(settings, setting_key):
+                value = getattr(settings, setting_key)
+                if value is not None:
+                    os.environ[env_key] = str(value)
+                    updated_settings[setting_key] = value
+        
+        # For non-env settings, just track them in response
+        non_env_settings = [
+            "language", "timezone", "theme", "auto_save", "notifications",
+            "response_length", "confidence", "voice_enabled", "auto_processing",
+            "backup_frequency", "log_level", "voice_speed", "two_factor_auth",
+            "session_timeout", "password_expiry", "ip_whitelist",
+            "email_notifications", "push_notifications", "document_processed",
+            "system_alerts", "weekly_reports"
+        ]
+        
+        for setting_key in non_env_settings:
+            if hasattr(settings, setting_key):
+                value = getattr(settings, setting_key)
+                if value is not None:
+                    updated_settings[setting_key] = value
+        
+        # Note: In a production app, you would save these to a database
+        # or persistent configuration file
+        
+        return SettingsResponse(
+            success=True,
+            message=f"Successfully updated {len(updated_settings)} settings",
+            settings=updated_settings
+        )
+        
+    except Exception as e:
+        logger.error(f"Error updating settings: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/settings/reset")
+async def reset_settings():
+    """Reset settings to default values"""
+    try:
+        # Reset to default environment values
+        default_env = {
+            "LLM_MODEL": "llama3-8b-8192",
+            "TEMPERATURE": "0.3",
+            "MAX_TOKENS": "1000",
+            "MAX_FILE_SIZE": "50MB",
+            "CHUNK_SIZE": "1000",
+            "CHUNK_OVERLAP": "200",
+            "EMBEDDING_MODEL": "all-MiniLM-L6-v2",
+            "MAX_SEARCH_RESULTS": "5",
+            "TTS_VOICE": "en",
+            "STT_MODEL": "base"
+        }
+        
+        for key, value in default_env.items():
+            os.environ[key] = value
+        
+        return {
+            "success": True,
+            "message": "Settings reset to default values",
+            "reset_count": len(default_env)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error resetting settings: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
+    import multiprocessing
+    multiprocessing.set_start_method('spawn', force=True)  # Fix semaphore issues
+    
     # Configuration
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", 8000))
@@ -519,10 +818,41 @@ if __name__ == "__main__":
     logger.info(f"🔧 Debug mode: {debug}")
     logger.info("📚 Make sure to set your API keys in .env file")
     
-    uvicorn.run(
-        "main:app",
-        host=host,
-        port=port,
-        reload=debug,
-        log_level="info"
-    )
+    try:
+        uvicorn.run(
+            "main:app",
+            host=host,
+            port=port,
+            reload=debug,
+            log_level="info"
+        )
+    except KeyboardInterrupt:
+        logger.info("🛑 Server stopped by user")
+    except Exception as e:
+        logger.error(f"Server error: {e}")
+    finally:
+        # Cleanup resources
+        logger.info("🧹 Cleaning up resources...")
+        
+        # Cleanup RAG engine (includes KG driver)
+        try:
+            rag_engine.close()
+        except Exception as e:
+            logger.warning(f"RAG engine cleanup error: {e}")
+        
+        # Cleanup KG driver
+        if kg_available and kg_driver:
+            try:
+                kg_driver.close()
+                logger.info("Knowledge Graph driver closed")
+            except Exception as e:
+                logger.warning(f"KG driver cleanup error: {e}")
+        
+        if voice_handler:
+            try:
+                # Add any voice handler cleanup if needed
+                pass
+            except Exception as e:
+                logger.warning(f"Voice handler cleanup error: {e}")
+        
+        logger.info("✅ Cleanup completed")

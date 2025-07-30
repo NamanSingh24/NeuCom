@@ -45,20 +45,18 @@ export const apiService = {
     return response.data;
   },
 
-  synthesizeSpeech: async (text, voiceId = 'alloy', speed = 1.0) => {
-    const response = await api.post(`/voice/synthesize?voice_id=${voiceId}&speed=${speed}`, 
-      JSON.stringify(text), {
+  synthesizeSpeech: async (text, voiceId = 'nova', speed = 0.9) => {
+    const response = await api.post('/voice/synthesize', {}, {
+      params: {
+        text: text,
+        voice_id: voiceId,
+        speed: speed
+      },
       headers: {
         'Content-Type': 'application/json',
       },
       responseType: 'blob'
     });
-    return response.data;
-  },
-
-  // Get system stats
-  getStats: async () => {
-    const response = await api.get('/stats');
     return response.data;
   },
 
@@ -76,6 +74,104 @@ export const apiService = {
     } catch (error) {
       return { status: 'unhealthy', error: error.message };
     }
+  },
+
+  // Knowledge Graph endpoints
+  getKGStatus: async () => {
+    const response = await api.get('/kg/status');
+    return response.data;
+  },
+
+  getEntitySteps: async (entityName) => {
+    const response = await api.get(`/kg/entities/${entityName}`);
+    return response.data;
+  },
+
+  getKGSOPs: async () => {
+    const response = await api.get('/kg/sops');
+    return response.data;
+  },
+
+  // Enhanced document management
+  getDocuments: async () => {
+    const response = await api.get('/documents');
+    return response.data;
+  },
+
+  deleteDocument: async (filename) => {
+    const response = await api.delete(`/documents/${filename}`);
+    return response.data;
+  },
+
+  // Procedure management
+  startProcedure: async (procedureName) => {
+    const response = await api.post('/procedure/start', { 
+      procedure_name: procedureName 
+    });
+    return response.data;
+  },
+
+  nextStep: async () => {
+    const response = await api.post('/procedure/next');
+    return response.data;
+  },
+
+  previousStep: async () => {
+    const response = await api.post('/procedure/previous');
+    return response.data;
+  },
+
+  getCurrentProcedure: async () => {
+    const response = await api.get('/procedure/current');
+    return response.data;
+  },
+
+  getProcedureStatus: async () => {
+    const response = await api.get('/procedure/status');
+    return response.data;
+  },
+
+  getAvailableProcedures: async () => {
+    const response = await api.get('/procedures');
+    return response.data;
+  },
+
+  // Enhanced voice features
+  getAvailableVoices: async () => {
+    const response = await api.get('/voice/voices');
+    return response.data;
+  },
+
+  // Conversation history
+  getConversationHistory: async () => {
+    const response = await api.get('/conversation/history');
+    return response.data;
+  },
+
+  // Enhanced query with context filter
+  queryDocumentAdvanced: async (query, options = {}) => {
+    const response = await api.post('/query', {
+      query,
+      voice_enabled: options.voiceEnabled || false,
+      context_filter: options.contextFilter || null,
+    });
+    return response.data;
+  },
+
+  // Settings endpoints
+  getSettings: async () => {
+    const response = await api.get('/settings');
+    return response.data;
+  },
+
+  updateSettings: async (settings) => {
+    const response = await api.post('/settings', settings);
+    return response.data;
+  },
+
+  resetSettings: async () => {
+    const response = await api.get('/settings/reset');
+    return response.data;
   },
 };
 
