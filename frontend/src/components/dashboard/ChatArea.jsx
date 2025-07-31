@@ -385,12 +385,12 @@ const ChatArea = ({
                       </button>
                     )}
                   </div>
-                  {message.sources && message.sources.length > 0 && (
+                  {/* {message.sources && message.sources.length > 0 && (
                     <div className="mt-2 text-xs opacity-75">
                       <p>Sources: {message.sources.join(', ')}</p>
                       <p>Confidence: {(message.confidence * 100).toFixed(1)}%</p>
                     </div>
-                  )}
+                  )} */}
                   <p className={`text-xs mt-1 ${
                     message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
                   }`}>

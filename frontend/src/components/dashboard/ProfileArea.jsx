@@ -20,7 +20,6 @@ import {
   Activity,
   Settings,
   Bell,
-  Lock,
   Trash2,
   AlertTriangle,
   Info
@@ -176,8 +175,8 @@ const ProfileArea = () => {
       {/* Header with Save Status */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-          <p className="text-gray-600 mt-1">Manage your personal information and account preferences</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Profile</h1>
+          <p className="text-gray-700 dark:text-gray-300 mt-1">Manage your personal information and account preferences</p>
         </div>
         
         {/* Save Status */}

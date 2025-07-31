@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class', // Enable dark mode with class strategy
   theme: {
     extend: {
       colors: {
@@ -36,6 +37,17 @@ export default {
           "accent": "#059669",
           "neutral": "#1f2937",
           "base-100": "#ffffff",
+          "info": "#0ea5e9",
+          "success": "#10b981",
+          "warning": "#f59e0b",
+          "error": "#ef4444",
+        },
+        dark: {
+          "primary": "#3b82f6",
+          "secondary": "#6b7280", 
+          "accent": "#10b981",
+          "neutral": "#1f2937",
+          "base-100": "#1f2937",
           "info": "#0ea5e9",
           "success": "#10b981",
           "warning": "#f59e0b",
