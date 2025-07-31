@@ -373,13 +373,19 @@ const ChatArea = ({
                 >
                   {message.sender === 'user' ? (
                     // User message - simple text display
-                    <div className="flex items-start justify-between">
-                      <p className="text-sm flex-1">{message.text}</p>
+                    <div>
+                      <p className="text-sm">{message.text}</p>
+                      <p className="text-xs mt-1 text-blue-100">
+                        {message.timestamp}
+                      </p>
                     </div>
                   ) : message.isError ? (
                     // Error message - simple text display
-                    <div className="flex items-start justify-between">
-                      <p className="text-sm flex-1">{message.text}</p>
+                    <div>
+                      <p className="text-sm">{message.text}</p>
+                      <p className="text-xs mt-1 text-gray-500">
+                        {message.timestamp}
+                      </p>
                     </div>
                   ) : (
                     // AI response - use FormattedMessage component
@@ -402,15 +408,6 @@ const ChatArea = ({
                       </div>
                       <FormattedMessage message={message} />
                     </div>
-                  )}
-                  
-                  {/* Timestamp for user messages and errors */}
-                  {(message.sender === 'user' || message.isError) && (
-                    <p className={`text-xs mt-1 ${
-                      message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
-                    }`}>
-                      {message.timestamp}
-                    </p>
                   )}
                 </div>
               </div>

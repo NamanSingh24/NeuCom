@@ -171,15 +171,16 @@ const DocumentsArea = ({ uploadedFiles = [], onUploadNew }) => {
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Document Management</h1>
-          <p className="text-gray-600 mt-1">Manage your SOP documents and monitor processing status</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Document Management</h1>
+          <p className="text-gray-700 dark:text-gray-300 mt-1">Manage your SOP documents and monitor processing status</p>
         </div>
         <button
           onClick={onUploadNew}
           className="btn-corporate flex items-center space-x-2"
+          style={{ color: '#ffffff' }}
         >
-          <Plus className="h-4 w-4" />
-          <span>Upload Document</span>
+          <Plus className="h-4 w-4 text-white" />
+          <span className="text-white">Upload Document</span>
         </button>
       </div>
 
@@ -188,8 +189,8 @@ const DocumentsArea = ({ uploadedFiles = [], onUploadNew }) => {
         <div className="card-corporate p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Total Documents</p>
-              <p className="text-2xl font-bold text-gray-900">{uploadedFiles.length}</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Total Documents</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{uploadedFiles.length}</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-lg">
               <FileText className="h-6 w-6 text-blue-600" />
@@ -200,7 +201,7 @@ const DocumentsArea = ({ uploadedFiles = [], onUploadNew }) => {
         <div className="card-corporate p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Processed</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Processed</p>
               <p className="text-2xl font-bold text-green-600">
                 {uploadedFiles.filter(doc => doc.status === 'processed').length}
               </p>
@@ -214,7 +215,7 @@ const DocumentsArea = ({ uploadedFiles = [], onUploadNew }) => {
         <div className="card-corporate p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Processing</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Processing</p>
               <p className="text-2xl font-bold text-blue-600">
                 {uploadedFiles.filter(doc => doc.status === 'processing').length}
               </p>
@@ -228,8 +229,8 @@ const DocumentsArea = ({ uploadedFiles = [], onUploadNew }) => {
         <div className="card-corporate p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Total Size</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Total Size</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {formatFileSize(uploadedFiles.reduce((sum, doc) => sum + (doc.size || 0), 0))}
               </p>
             </div>

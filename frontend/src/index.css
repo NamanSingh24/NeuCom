@@ -1,40 +1,249 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+/* CSS Variables for Theme System */
+:root {
+  /* Light theme colors */
+  --color-bg-primary: #f9fafb;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #f3f4f6;
+  --color-bg-hover: #f3f4f6;
+  --color-bg-active: #2563eb;
+  --color-bg-active-hover: #1d4ed8;
+  
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-text-inverse: #ffffff;
+  
+  --color-border-primary: #e5e7eb;
+  --color-border-secondary: #f3f4f6;
+  --color-border-focus: #2563eb;
+  
+  --color-accent-primary: #2563eb;
+  --color-accent-secondary: #1d4ed8;
+  --color-accent-light: #dbeafe;
+  
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-error: #ef4444;
+  --color-error-light: #fee2e2;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark theme colors */
+[data-theme="dark"] {
+  --color-bg-primary: #111827;
+  --color-bg-secondary: #1f2937;
+  --color-bg-tertiary: #374151;
+  --color-bg-hover: #374151;
+  --color-bg-active: #3b82f6;
+  --color-bg-active-hover: #2563eb;
+  
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #d1d5db;
+  --color-text-tertiary: #9ca3af;
+  --color-text-inverse: #111827;
+  
+  --color-border-primary: #374151;
+  --color-border-secondary: #4b5563;
+  --color-border-focus: #3b82f6;
+  
+  --color-accent-primary: #3b82f6;
+  --color-accent-secondary: #2563eb;
+  --color-accent-light: #1e3a8a;
+  
+  --color-success: #10b981;
+  --color-success-light: #064e3b;
+  --color-warning: #f59e0b;
+  --color-warning-light: #78350f;
+  --color-error: #ef4444;
+  --color-error-light: #7f1d1d;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
 @layer base {
   body {
     font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Remove body background and color to let Tailwind handle it */
+  html {
     background-color: #f9fafb;
     color: #111827;
-    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  html.dark {
+    background-color: #111827;
+    color: #f9fafb;
+  }
+  
+  /* Ensure all text elements have proper contrast in light mode */
+  h1, h2, h3, h4, h5, h6 {
+    color: #111827;
+  }
+  
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: #f9fafb;
+  }
+  
+  p, span, div {
+    color: #374151;
+  }
+  
+  .dark p, .dark span, .dark div {
+    color: #d1d5db;
+  }
+}
+
+/* Ensure Tailwind dark mode classes have proper priority */
+@layer utilities {
+  .bg-gray-50 {
+    background-color: #f9fafb !important;
+  }
+  
+  .dark .dark\:bg-gray-900 {
+    background-color: #111827 !important;
+  }
+  
+  /* Fix background colors */
+  .bg-white {
+    background-color: #ffffff !important;
+  }
+  
+  .dark .dark\:bg-gray-800 {
+    background-color: #1f2937 !important;
+  }
+  
+  .dark .dark\:bg-gray-700 {
+    background-color: #374151 !important;
+  }
+  
+  .dark .dark\:text-white {
+    color: #ffffff !important;
+  }
+  
+  .dark .dark\:text-gray-100 {
+    color: #f3f4f6 !important;
+  }
+  
+  .dark .dark\:text-gray-300 {
+    color: #d1d5db !important;
+  }
+  
+  .dark .dark\:text-gray-400 {
+    color: #9ca3af !important;
+  }
+  
+  .dark .dark\:border-gray-700 {
+    border-color: #374151 !important;
+  }
+  
+  /* Fix light mode text colors */
+  .text-gray-900 {
+    color: #111827 !important;
+  }
+  
+  .text-gray-800 {
+    color: #1f2937 !important;
+  }
+  
+  .text-gray-700 {
+    color: #374151 !important;
+  }
+  
+  .text-gray-600 {
+    color: #4b5563 !important;
+  }
+  
+  .text-gray-500 {
+    color: #6b7280 !important;
+  }
+  
+  /* Fix border colors */
+  .border-gray-200 {
+    border-color: #e5e7eb !important;
+  }
+  
+  .dark .dark\:border-gray-700 {
+    border-color: #374151 !important;
+  }
+  
+  /* Ensure active buttons with blue background have white text */
+  .bg-blue-600 {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+  }
+  
+  .bg-blue-600 * {
+    color: #ffffff !important;
+  }
+  
+  .bg-blue-600 svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+  }
+  
+  /* Sidebar specific fixes */
+  .sidebar-bottom {
+    background-color: #ffffff !important;
+  }
+  
+  .dark .sidebar-bottom {
+    background-color: #1f2937 !important;
   }
 }
 
 .btn-corporate {
-  background-color: #2563eb;
-  color: white;
+  background-color: var(--color-accent-primary);
+  color: #ffffff !important;
   font-weight: 500;
   padding: 10px 24px;
   border-radius: 8px;
   transition: all 0.2s;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
+  border: none;
 }
 
 .btn-corporate:hover {
-  background-color: #1d4ed8;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-accent-secondary);
+  color: #ffffff !important;
+}
+
+.btn-corporate * {
+  color: #ffffff !important;
+}
+
+.btn-corporate svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.btn-corporate:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .card-corporate {
-  background-color: white;
+  background-color: var(--color-bg-secondary);
   border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f3f4f6;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-secondary);
   transition: all 0.3s;
 }
 
 .card-corporate:hover {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
 .sidebar-item {
@@ -45,15 +254,16 @@
   border-radius: 8px;
   transition: all 0.2s;
   cursor: pointer;
+  color: var(--color-text-primary);
 }
 
 .sidebar-item:hover {
-  background-color: #f3f4f6;
+  background-color: var(--color-bg-hover);
 }
 
 .sidebar-item.active {
-  background-color: #2563eb;
-  color: white;
+  background-color: var(--color-bg-active);
+  color: var(--color-text-inverse);
 }
 
 .sidebar-item-collapsible {
@@ -64,6 +274,11 @@
   transition: all 0.3s ease-in-out;
   cursor: pointer;
   position: relative;
+  color: var(--color-text-primary);
+}
+
+.dark .sidebar-item-collapsible {
+  color: #f9fafb;
 }
 
 .sidebar-item-collapsible.collapsed {
@@ -78,16 +293,51 @@
 }
 
 .sidebar-item-collapsible:hover {
-  background-color: #f3f4f6;
+  background-color: var(--color-bg-hover);
+}
+
+.dark .sidebar-item-collapsible:hover {
+  background-color: #374151;
 }
 
 .sidebar-item-collapsible.active {
-  background-color: #2563eb;
-  color: white;
+  background-color: var(--color-bg-active);
+  color: #ffffff !important;
+}
+
+.dark .sidebar-item-collapsible.active {
+  background-color: #3b82f6;
+  color: #ffffff !important;
 }
 
 .sidebar-item-collapsible.active:hover {
-  background-color: #1d4ed8;
+  background-color: var(--color-bg-active-hover);
+  color: #ffffff !important;
+}
+
+.dark .sidebar-item-collapsible.active:hover {
+  background-color: #2563eb;
+  color: #ffffff !important;
+}
+
+/* Ensure active sidebar item text and icons are white */
+.sidebar-item-collapsible.active * {
+  color: #ffffff !important;
+}
+
+.dark .sidebar-item-collapsible.active * {
+  color: #ffffff !important;
+}
+
+/* Ensure active sidebar item SVG icons are white */
+.sidebar-item-collapsible.active svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.dark .sidebar-item-collapsible.active svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .gradient-bg {
@@ -133,4 +383,102 @@
 
 .formatted-message code {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Input and form elements */
+input, select, textarea {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-primary);
+  transition: all 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-text-tertiary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Status colors */
+.text-success {
+  color: var(--color-success) !important;
+}
+
+.bg-success-light {
+  background-color: var(--color-success-light) !important;
+}
+
+.text-warning {
+  color: var(--color-warning) !important;
+}
+
+.bg-warning-light {
+  background-color: var(--color-warning-light) !important;
+}
+
+.text-error {
+  color: var(--color-error) !important;
+}
+
+.bg-error-light {
+  background-color: var(--color-error-light) !important;
+}
+
+/* Dark mode utilities */
+.dark-compatible {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border-primary);
+}
+
+.dark-compatible:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Tailwind dark mode compatibility */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --color-bg-primary: #111827;
+    --color-bg-secondary: #1f2937;
+    --color-bg-tertiary: #374151;
+    --color-bg-hover: #374151;
+    --color-bg-active: #3b82f6;
+    --color-bg-active-hover: #2563eb;
+    
+    --color-text-primary: #f9fafb;
+    --color-text-secondary: #d1d5db;
+    --color-text-tertiary: #9ca3af;
+    --color-text-inverse: #111827;
+    
+    --color-border-primary: #374151;
+    --color-border-secondary: #4b5563;
+    --color-border-focus: #3b82f6;
+    
+    --color-accent-primary: #3b82f6;
+    --color-accent-secondary: #2563eb;
+    --color-accent-light: #1e3a8a;
+    
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  }
 }

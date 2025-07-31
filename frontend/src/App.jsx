@@ -1,11 +1,14 @@
 import React from 'react'
 import DashboardPage from './pages/DashboardPage'
+import { ThemeProvider } from './contexts/ThemeContext'
 
 function App() {
   return (
-    <div className="App" data-theme="corporate">
-      <DashboardPage/>
-    </div>
+    <ThemeProvider>
+      <div className="App">
+        <DashboardPage/>
+      </div>
+    </ThemeProvider>
   )
 }
 

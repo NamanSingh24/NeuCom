@@ -6,18 +6,18 @@ const Sidebar = ({ sidebarItems, activeTab, setActiveTab }) => {
 
   return (
     <div 
-      className={`${isHovered ? 'w-64' : 'w-16'} bg-white shadow-lg fixed h-full z-10 transition-all duration-300 ease-in-out`}
+      className={`${isHovered ? 'w-64' : 'w-16'} bg-white dark:bg-gray-800 shadow-lg fixed h-full z-10 transition-all duration-300 ease-in-out`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg flex-shrink-0">
             <Brain className="h-5 w-5 text-white" />
           </div>
           <div className={`transition-all duration-300 ${isHovered ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
-            <h1 className="text-lg font-bold text-gray-900 whitespace-nowrap">SOP Interpreter</h1>
-            <p className="text-xs text-gray-500 whitespace-nowrap">AI-Powered Assistant</p>
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white whitespace-nowrap">SOP Interpreter</h1>
+            <p className="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">AI-Powered Assistant</p>
           </div>
         </div>
       </div>
@@ -40,10 +40,10 @@ const Sidebar = ({ sidebarItems, activeTab, setActiveTab }) => {
         ))}
       </nav>
       
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
+      <div className="sidebar-bottom absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         <button
           onClick={() => setActiveTab('profile')}
-          className={`w-full flex items-center space-x-3 p-2 rounded-lg transition-colors hover:bg-gray-100 ${
+          className={`w-full flex items-center space-x-3 p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 ${
             !isHovered ? 'justify-center' : ''
           }`}
           title={!isHovered ? 'Profile' : ''}
@@ -52,8 +52,8 @@ const Sidebar = ({ sidebarItems, activeTab, setActiveTab }) => {
             <User className="h-4 w-4 text-white" />
           </div>
           <div className={`transition-all duration-300 ${isHovered ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
-            <p className="text-sm font-medium text-gray-900 whitespace-nowrap">Administrator</p>
-            <p className="text-xs text-gray-500 whitespace-nowrap">System Manager</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">Administrator</p>
+            <p className="text-xs text-gray-200 dark:text-gray-400 whitespace-nowrap">System Manager</p>
           </div>
         </button>
       </div>

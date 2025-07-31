@@ -263,10 +263,10 @@ const DashboardPage = () => {
           <div className="text-center py-12">
             <div className="card-corporate p-12 max-w-md mx-auto">
               {/* Brain icon background */}
-              <h2 className="text-xl font-semibold text-gray-600 mb-2">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 {sidebarItems.find(item => item.id === activeTab)?.label}
               </h2>
-              <p className="text-gray-500">This feature is coming soon. Stay tuned for updates!</p>
+              <p className="text-gray-700 dark:text-gray-300">This feature is coming soon. Stay tuned for updates!</p>
             </div>
           </div>
         );
@@ -274,7 +274,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       <Sidebar className="" sidebarItems={sidebarItems} activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="flex-1 ml-16 p-8 transition-all duration-300">
         <AnimatePresence mode="wait">
