@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MessageSquare, Mic, MicOff, Loader2, Send, AlertCircle, Volume2, VolumeX, Trash2, Settings } from 'lucide-react';
 import voiceManager from '../../utils/voiceManager';
 import { apiService } from '../../services/api';
+import FormattedMessage from './FormattedMessage';
 
 const ChatArea = ({
   isVoiceMode,
@@ -358,7 +359,11 @@ const ChatArea = ({
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
+                  className={`${
+                    message.sender === 'user' 
+                      ? 'max-w-xs lg:max-w-md' 
+                      : 'max-w-md lg:max-w-2xl'
+                  } px-4 py-3 rounded-lg ${
                     message.sender === 'user'
                       ? 'bg-blue-600 text-white'
                       : message.isError
@@ -366,36 +371,47 @@ const ChatArea = ({
                       : 'bg-gray-100 text-gray-900'
                   }`}
                 >
-                  <div className="flex items-start justify-between">
-                    <p className="text-sm flex-1">{message.text}</p>
-                    
-                    {/* Voice synthesis button for AI responses */}
-                    {message.sender === 'assistant' && !message.isError && (
-                      <button
-                        onClick={() => synthesizeResponse(message.text)}
-                        disabled={isSpeaking}
-                        className={`ml-2 p-1 rounded-full transition-colors ${
-                          isSpeaking 
-                            ? 'text-green-600 animate-pulse' 
-                            : 'text-gray-400 hover:text-blue-600'
-                        }`}
-                        title={`Play with ${availableVoices.find(v => v.id === selectedVoice)?.name || selectedVoice} voice`}
-                      >
-                        <Volume2 className="h-3 w-3" />
-                      </button>
-                    )}
-                  </div>
-                  {message.sources && message.sources.length > 0 && (
-                    <div className="mt-2 text-xs opacity-75">
-                      <p>Sources: {message.sources.join(', ')}</p>
-                      <p>Confidence: {(message.confidence * 100).toFixed(1)}%</p>
+                  {message.sender === 'user' ? (
+                    // User message - simple text display
+                    <div className="flex items-start justify-between">
+                      <p className="text-sm flex-1">{message.text}</p>
+                    </div>
+                  ) : message.isError ? (
+                    // Error message - simple text display
+                    <div className="flex items-start justify-between">
+                      <p className="text-sm flex-1">{message.text}</p>
+                    </div>
+                  ) : (
+                    // AI response - use FormattedMessage component
+                    <div>
+                      <div className="flex items-start justify-between mb-2">
+                        <span className="text-xs font-medium text-gray-500">AI Assistant</span>
+                        {/* Voice synthesis button for AI responses */}
+                        <button
+                          onClick={() => synthesizeResponse(message.text)}
+                          disabled={isSpeaking}
+                          className={`p-1 rounded-full transition-colors ${
+                            isSpeaking 
+                              ? 'text-green-600 animate-pulse' 
+                              : 'text-gray-400 hover:text-blue-600'
+                          }`}
+                          title={`Play with ${availableVoices.find(v => v.id === selectedVoice)?.name || selectedVoice} voice`}
+                        >
+                          <Volume2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                      <FormattedMessage message={message} />
                     </div>
                   )}
-                  <p className={`text-xs mt-1 ${
-                    message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
-                  }`}>
-                    {message.timestamp}
-                  </p>
+                  
+                  {/* Timestamp for user messages and errors */}
+                  {(message.sender === 'user' || message.isError) && (
+                    <p className={`text-xs mt-1 ${
+                      message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
+                    }`}>
+                      {message.timestamp}
+                    </p>
+                  )}
                 </div>
               </div>
             ))
