@@ -344,6 +344,47 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+/* Additional styles for formatted messages */
+.formatted-message h2,
+.formatted-message h3,
+.formatted-message h4 {
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.formatted-message h2:first-child,
+.formatted-message h3:first-child,
+.formatted-message h4:first-child {
+  margin-top: 0;
+}
+
+.formatted-message p:last-child {
+  margin-bottom: 0;
+}
+
+.formatted-message ul,
+.formatted-message ol {
+  margin: 0.5rem 0;
+  padding-left: 1rem;
+}
+
+.formatted-message li {
+  margin-bottom: 0.25rem;
+}
+
+.formatted-message blockquote {
+  margin: 0.75rem 0;
+}
+
+.formatted-message pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.formatted-message code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
 /* Input and form elements */
 input, select, textarea {
   background-color: var(--color-bg-secondary);
