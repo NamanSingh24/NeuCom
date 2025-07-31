@@ -14,6 +14,10 @@ from datetime import datetime
 import mimetypes
 from io import BytesIO
 
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+
 # Fix tokenizers parallelism warning
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -27,9 +31,7 @@ from sop_chat import SOPChat
 from Knowledge_Graph.ingestion import get_neo4j_driver, ingest_sop_to_kg
 import uuid
 
-# Load environment variables
-from dotenv import load_dotenv
-load_dotenv()
+
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)

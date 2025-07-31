@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { Brain, User } from 'lucide-react';
+import React, { useState } from 'react';
 
 const Sidebar = ({ sidebarItems, activeTab, setActiveTab }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -16,7 +16,7 @@ const Sidebar = ({ sidebarItems, activeTab, setActiveTab }) => {
             <Brain className="h-5 w-5 text-white" />
           </div>
           <div className={`transition-all duration-300 ${isHovered ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
-            <h1 className="text-lg font-bold text-gray-900 dark:text-white whitespace-nowrap">SOP Interpreter</h1>
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white whitespace-nowrap">NeuCom</h1>
             <p className="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">AI-Powered Assistant</p>
           </div>
         </div>

@@ -1,20 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Sidebar from '../components/dashboard/Sidebar';
-import StatsGrid from '../components/dashboard/StatsGrid';
-import FeatureHighlights from '../components/dashboard/FeatureHighlights';
-import RecentActivity from '../components/dashboard/RecentActivity';
-import UploadArea from '../components/dashboard/UploadArea';
-import ChatArea from '../components/dashboard/ChatArea';
-import DocumentsArea from '../components/dashboard/DocumentsArea';
+import { AnimatePresence, motion } from 'framer-motion';
+import { BarChart3, Brain, Clock, Database, FileText, Home, MessageSquare, Settings, TrendingUp, Upload } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import AnalyticsArea from '../components/dashboard/AnalyticsArea';
-import SettingsArea from '../components/dashboard/SettingsArea';
-import ProfileArea from '../components/dashboard/ProfileArea';
+import ChatArea from '../components/dashboard/ChatArea';
 import ChatEnhancementPanel from '../components/dashboard/ChatEnhancementPanel';
+import DocumentsArea from '../components/dashboard/DocumentsArea';
+import FeatureHighlights from '../components/dashboard/FeatureHighlights';
 import KnowledgeGraphPanel from '../components/dashboard/KnowledgeGraphPanel';
 import KnowledgeGraphSetup from '../components/dashboard/KnowledgeGraphSetup';
+import ProfileArea from '../components/dashboard/ProfileArea';
+import RecentActivity from '../components/dashboard/RecentActivity';
+import SettingsArea from '../components/dashboard/SettingsArea';
+import Sidebar from '../components/dashboard/Sidebar';
+import StatsGrid from '../components/dashboard/StatsGrid';
+import UploadArea from '../components/dashboard/UploadArea';
 import apiService from '../services/api';
-import { FileText, MessageSquare, Clock, TrendingUp, Upload, BarChart3, Settings, Home, Brain, Database } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState('home');
@@ -166,7 +166,7 @@ const DashboardPage = () => {
           <div className="space-y-6">
             <div className="gradient-bg rounded-2xl p-8 text-white relative overflow-hidden">
               <div className="relative max-w-2xl">
-                <h1 className="text-3xl font-bold mb-2">Welcome to SOP Interpreter</h1>
+                <h1 className="text-3xl font-bold mb-2 text-[#eee]" >Welcome to NeuCom</h1>
                 <p className="text-blue-100 text-lg mb-6">
                   Your intelligent assistant for Standard Operating Procedures. Upload documents, ask questions, and get instant, accurate guidance powered by AI.
                 </p>

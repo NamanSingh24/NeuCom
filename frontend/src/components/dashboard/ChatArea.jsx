@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { MessageSquare, Mic, MicOff, Loader2, Send, AlertCircle, Volume2, VolumeX, Trash2, Settings } from 'lucide-react';
-import voiceManager from '../../utils/voiceManager';
+import { AlertCircle, Loader2, MessageSquare, Mic, MicOff, Send, Trash2, Volume2, VolumeX } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { apiService } from '../../services/api';
+import voiceManager from '../../utils/voiceManager';
 
 const ChatArea = ({
   isVoiceMode,
@@ -212,7 +212,7 @@ const ChatArea = ({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">SOP Assistant</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Neo Assistant</h1>
           <p className="text-gray-600 mt-1">Ask questions about your uploaded procedures</p>
         </div>
         <div className="flex items-center space-x-3">
@@ -259,7 +259,7 @@ const ChatArea = ({
         {/* Header with voice controls and clear button */}
         <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
           <div className="flex items-center space-x-4">
-            <h3 className="text-lg font-semibold text-gray-900">SOP Chat Assistant</h3>
+            {/* <h3 className="text-lg font-semibold text-gray-900">SOP Chat Assistant</h3> */}
             
             {/* Voice Response Toggle */}
             <div className="flex items-center space-x-2">
