@@ -146,7 +146,7 @@ class SettingsRequest(BaseModel):
     ip_whitelist: Optional[str] = Field(default="")
     
     # AI Settings
-    ai_model: Optional[str] = Field(default="llama3-8b-8192")
+    ai_model: Optional[str] = Field(default="llama-3.1-8b-instant")
     response_length: Optional[str] = Field(default="medium")
     confidence: Optional[float] = Field(default=0.8, ge=0.0, le=1.0)
     voice_enabled: Optional[bool] = Field(default=True)
@@ -673,7 +673,7 @@ async def get_settings():
             "notifications": True,
             
             # AI Settings
-            "ai_model": os.getenv("LLM_MODEL", "llama3-8b-8192"),
+            "ai_model": os.getenv("LLM_MODEL", "llama-3.1-8b-instant"),
             "response_length": "medium",
             "confidence": 0.8,
             "voice_enabled": True,
@@ -780,7 +780,7 @@ async def reset_settings():
     try:
         # Reset to default environment values
         default_env = {
-            "LLM_MODEL": "llama3-8b-8192",
+            "LLM_MODEL": "llama-3.1-8b-instant",
             "TEMPERATURE": "0.3",
             "MAX_TOKENS": "1000",
             "MAX_FILE_SIZE": "50MB",

@@ -16,7 +16,7 @@ class GroqClient:
             raise ValueError("GROQ_API_KEY is required")
         
         self.client = Groq(api_key=self.api_key)
-        self.model = os.getenv('LLM_MODEL', 'llama3-8b-8192')
+        self.model = os.getenv('LLM_MODEL', 'llama-3.1-8b-instant')
         self.max_tokens = int(os.getenv('MAX_TOKENS', 1000))
         self.temperature = float(os.getenv('TEMPERATURE', 0.3))
         
