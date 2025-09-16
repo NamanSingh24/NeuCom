@@ -23,8 +23,8 @@ async def test_components():
     groq_key = os.getenv('GROQ_API_KEY')
     openai_key = os.getenv('OPENAI_API_KEY')
     
-    print(f"   GROQ_API_KEY: {'✅ Set' if groq_key else '❌ Missing'}")
-    print(f"   OPENAI_API_KEY: {'✅ Set' if openai_key else '❌ Missing'}")
+    print(f"   GROQ_API_KEY: {'Set' if groq_key else ' Missing'}")
+    print(f"   OPENAI_API_KEY: {'Set' if openai_key else 'Missing'}")
     
     # Test 2: Document Processor
     print("\n2. Testing Document Processor...")

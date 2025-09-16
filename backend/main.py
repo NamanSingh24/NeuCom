@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from API.user_preferences import router as user_preferences_router
 import os
 import tempfile
 import shutil
@@ -45,6 +46,8 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+# Include user preferences router
+app.include_router(user_preferences_router)
 
 # CORS middleware
 app.add_middleware(
@@ -803,6 +806,33 @@ async def reset_settings():
         
     except Exception as e:
         logger.error(f"Error resetting settings: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# File information endpoint
+@app.get("/files")
+async def get_uploaded_files():
+    """Get simple file information (names and sizes) from uploads folder"""
+    try:
+        files = []
+        for file_path in UPLOAD_DIR.glob("*"):
+            if file_path.is_file():
+                file_size_bytes = file_path.stat().st_size
+                file_size_mb = round(file_size_bytes / (1024 * 1024), 2)
+                files.append({
+                    "name": file_path.name,
+                    "size_bytes": file_size_bytes,
+                    "size_mb": file_size_mb,
+                    "modified_at": datetime.fromtimestamp(file_path.stat().st_mtime).isoformat()
+                })
+        
+        return {
+            "success": True,
+            "files": files,
+            "total_files": len(files),
+            "total_size_mb": round(sum(f["size_mb"] for f in files), 2)
+        }
+    except Exception as e:
+        logger.error(f"Error listing files: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

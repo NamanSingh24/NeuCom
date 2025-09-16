@@ -1,0 +1,15 @@
+[*] Things To Implement 
+-> Google Auth
+-> Normal Login and Signup Backened Connectivity
+
+
+
+
+
+
+
+[*] Dependencies Introduced:
+-> pydantic settings
+-> langgraph
+-> neo4j
+-> passlib[bcrypt]
