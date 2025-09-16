@@ -1,207 +1,352 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Tailwind v4 entry */
 @import "tailwindcss";
 
-/* CSS Variables for Theme System */
+@theme {
+  /* Map your HSL tokens to Tailwind v4 color tokens */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));   /* 👈 this makes `border-border` valid */
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+}
+
+
+/* -----------------------------------------
+   TOKENS: Canonical HSL (old) + Hex aliases (new)
+   ----------------------------------------- */
+
 :root {
-  /* Light theme colors */
-  --color-bg-primary: #f9fafb;
-  --color-bg-secondary: #ffffff;
-  --color-bg-tertiary: #f3f4f6;
-  --color-bg-hover: #f3f4f6;
-  --color-bg-active: #2563eb;
-  --color-bg-active-hover: #1d4ed8;
-  
-  --color-text-primary: #111827;
-  --color-text-secondary: #6b7280;
-  --color-text-tertiary: #9ca3af;
-  --color-text-inverse: #ffffff;
-  
-  --color-border-primary: #e5e7eb;
-  --color-border-secondary: #f3f4f6;
-  --color-border-focus: #2563eb;
-  
-  --color-accent-primary: #2563eb;
-  --color-accent-secondary: #1d4ed8;
-  --color-accent-light: #dbeafe;
-  
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* ===== Old (canonical) HSL tokens ===== */
+  /* Light */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 142.1 76.2% 36.3%;
+  --primary-foreground: 355.7 100% 97.3%;
+  --secondary: 210 40% 98%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 98%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 98%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 142.1 76.2% 36.3%;
+
+  /* Charts (optional) */
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+
+  --radius: 0.5rem;
+
+  /* ===== New (hex-based) aliases → map to HSL tokens ===== */
+  /* Backgrounds */
+  --color-bg-primary: hsl(var(--muted));            /* ~ gray-50 */
+  --color-bg-secondary: hsl(var(--card));           /* white */
+  --color-bg-tertiary: hsl(var(--muted));           /* light gray */
+  --color-bg-hover: hsl(var(--muted));
+  --color-bg-active: hsl(var(--primary));
+  --color-bg-active-hover: hsl(var(--primary));     /* same hue, UI handles hover */
+
+  /* Text */
+  --color-text-primary: hsl(var(--foreground));
+  --color-text-secondary: hsl(var(--muted-foreground));
+  --color-text-tertiary: hsl(var(--muted-foreground));
+  --color-text-inverse: hsl(var(--card));           /* on dark bg */
+
+  /* Borders / focus */
+  --color-border-primary: hsl(var(--border));
+  --color-border-secondary: hsl(var(--border));
+  --color-border-focus: hsl(var(--ring));
+
+  /* Accents */
+  --color-accent-primary: hsl(var(--primary));
+  --color-accent-secondary: hsl(var(--primary));
+  --color-accent-light: color-mix(in hsl, hsl(var(--primary)) 20%, white);
+
+  /* Status */
   --color-success: #10b981;
   --color-success-light: #d1fae5;
   --color-warning: #f59e0b;
   --color-warning-light: #fef3c7;
   --color-error: #ef4444;
   --color-error-light: #fee2e2;
-  
+
+  /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-/* Dark theme colors */
+/* Dark mode: support both `.dark` and `[data-theme="dark"]` */
+:root.dark,
 [data-theme="dark"] {
-  --color-bg-primary: #111827;
-  --color-bg-secondary: #1f2937;
-  --color-bg-tertiary: #374151;
-  --color-bg-hover: #374151;
-  --color-bg-active: #3b82f6;
-  --color-bg-active-hover: #2563eb;
-  
-  --color-text-primary: #f9fafb;
-  --color-text-secondary: #d1d5db;
-  --color-text-tertiary: #9ca3af;
-  --color-text-inverse: #111827;
-  
-  --color-border-primary: #374151;
-  --color-border-secondary: #4b5563;
-  --color-border-focus: #3b82f6;
-  
-  --color-accent-primary: #3b82f6;
-  --color-accent-secondary: #2563eb;
-  --color-accent-light: #1e3a8a;
-  
-  --color-success: #10b981;
-  --color-success-light: #064e3b;
-  --color-warning: #f59e0b;
-  --color-warning-light: #78350f;
-  --color-error: #ef4444;
-  --color-error-light: #7f1d1d;
-  
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  /* ===== Old (canonical) HSL tokens - dark ===== */
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 142.1 70.6% 45.3%;
+  --primary-foreground: 144.9 80.4% 10%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 142.1 70.6% 45.3%;
+
+  /* Charts (dark) */
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
+
+  /* ===== New aliases (dark) → map to HSL tokens ===== */
+  --color-bg-primary: hsl(var(--background));
+  --color-bg-secondary: hsl(var(--card));
+  --color-bg-tertiary: hsl(var(--muted));
+  --color-bg-hover: hsl(var(--muted));
+  --color-bg-active: hsl(var(--primary));
+  --color-bg-active-hover: hsl(var(--primary));
+
+  --color-text-primary: hsl(var(--foreground));
+  --color-text-secondary: hsl(var(--muted-foreground));
+  --color-text-tertiary: hsl(var(--muted-foreground));
+  --color-text-inverse: hsl(var(--background));
+
+  --color-border-primary: hsl(var(--border));
+  --color-border-secondary: hsl(var(--border));
+  --color-border-focus: hsl(var(--ring));
+
+  --color-accent-primary: hsl(var(--primary));
+  --color-accent-secondary: hsl(var(--primary));
+  --color-accent-light: color-mix(in hsl, hsl(var(--primary)) 30%, black);
+
+  /* Darker shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.40);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.50);
 }
 
+/* -----------------------------------------
+   BASE LAYER
+   ----------------------------------------- */
 @layer base {
+  * { @apply border-border; }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    font-family: 'Inter', system-ui, sans-serif;
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
     font-feature-settings: "rlig" 1, "calt" 1;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
-  
-  /* Remove body background and color to let Tailwind handle it */
-  html {
-    background-color: #f9fafb;
-    color: #111827;
-  }
-  
-  html.dark {
-    background-color: #111827;
-    color: #f9fafb;
-  }
-  
-  /* Ensure all text elements have proper contrast in light mode */
-  h1, h2, h3, h4, h5, h6 {
-    color: #111827;
-  }
-  
-  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-    color: #f9fafb;
-  }
-  
-  p, span, div {
-    color: #374151;
-  }
-  
-  .dark p, .dark span, .dark div {
-    color: #d1d5db;
-  }
 }
 
-/* Ensure Tailwind dark mode classes have proper priority */
+/* -----------------------------------------
+   UTILITIES / OVERRIDES (kept minimal)
+   ----------------------------------------- */
 @layer utilities {
-  .bg-gray-50 {
-    background-color: #f9fafb !important;
-  }
-  
-  .dark .dark\:bg-gray-900 {
-    background-color: #111827 !important;
-  }
-  
-  /* Fix background colors */
-  .bg-white {
-    background-color: #ffffff !important;
-  }
-  
-  .dark .dark\:bg-gray-800 {
-    background-color: #1f2937 !important;
-  }
-  
-  .dark .dark\:bg-gray-700 {
-    background-color: #374151 !important;
-  }
-  
-  .dark .dark\:text-white {
-    color: #ffffff !important;
-  }
-  
-  .dark .dark\:text-gray-100 {
-    color: #f3f4f6 !important;
-  }
-  
-  .dark .dark\:text-gray-300 {
-    color: #d1d5db !important;
-  }
-  
-  .dark .dark\:text-gray-400 {
-    color: #9ca3af !important;
-  }
-  
-  .dark .dark\:border-gray-700 {
-    border-color: #374151 !important;
-  }
-  
-  /* Fix light mode text colors */
-  .text-gray-900 {
-    color: #111827 !important;
-  }
-  
-  .text-gray-800 {
-    color: #1f2937 !important;
-  }
-  
-  .text-gray-700 {
-    color: #374151 !important;
-  }
-  
-  .text-gray-600 {
-    color: #4b5563 !important;
-  }
-  
-  .text-gray-500 {
-    color: #6b7280 !important;
-  }
-  
-  /* Fix border colors */
-  .border-gray-200 {
-    border-color: #e5e7eb !important;
-  }
-  
-  .dark .dark\:border-gray-700 {
-    border-color: #374151 !important;
-  }
-  
-  /* Ensure active buttons with blue background have white text */
+  /* Example guardrails if you rely on exact grays */
+  .bg-gray-50 { background-color: #f9fafb !important; }
+  .bg-white { background-color: #ffffff !important; }
+
+  .dark .dark\:bg-gray-900 { background-color: #111827 !important; }
+  .dark .dark\:bg-gray-800 { background-color: #1f2937 !important; }
+  .dark .dark\:bg-gray-700 { background-color: #374151 !important; }
+
+  .dark .dark\:text-white { color: #ffffff !important; }
+  .dark .dark\:text-gray-100 { color: #f3f4f6 !important; }
+  .dark .dark\:text-gray-300 { color: #d1d5db !important; }
+  .dark .dark\:text-gray-400 { color: #9ca3af !important; }
+
+  .border-gray-200 { border-color: #e5e7eb !important; }
+  .dark .dark\:border-gray-700 { border-color: #374151 !important; }
+
+  /* Ensure active blue buttons render white text */
   .bg-blue-600 {
     background-color: #2563eb !important;
     color: #ffffff !important;
   }
-  
   .bg-blue-600 * {
     color: #ffffff !important;
   }
-  
   .bg-blue-600 svg {
     color: #ffffff !important;
     stroke: #ffffff !important;
   }
-  
-  /* Sidebar specific fixes */
-  .sidebar-bottom {
-    background-color: #ffffff !important;
-  }
-  
-  .dark .sidebar-bottom {
-    background-color: #1f2937 !important;
-  }
+}
+
+/* -----------------------------------------
+   LIGHT MODE OVERRIDES FOR DASHBOARD
+   ----------------------------------------- */
+
+/* Force light mode styles for dashboard components */
+.dashboard-light {
+  background-color: #f8fafc;
+  color: #334155;
+}
+
+.dashboard-light .sidebar-item-collapsible {
+  color: #475569;
+}
+
+.dashboard-light .sidebar-item-collapsible:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.dashboard-light .sidebar-item-collapsible.active {
+  background-color: #4f46e5;
+  color: #ffffff;
+}
+
+.dashboard-light .sidebar-item-collapsible.active:hover {
+  background-color: #4338ca;
+  color: #ffffff;
+}
+
+.dashboard-light .sidebar-item-collapsible.active *,
+.dashboard-light .sidebar-item-collapsible.active svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* Light mode card styles */
+.card-light {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.card-light:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Light mode text colors */
+.text-light-primary {
+  color: #1e293b;
+}
+
+.text-light-secondary {
+  color: #64748b;
+}
+
+.text-light-tertiary {
+  color: #94a3b8;
+}
+
+/* Light mode background colors */
+.bg-light-primary {
+  background-color: #f8fafc;
+}
+
+.bg-light-secondary {
+  background-color: #ffffff;
+}
+
+.bg-light-tertiary {
+  background-color: #f1f5f9;
+}
+
+/* Professional button styles for light mode */
+.btn-light-primary {
+  background-color: #4f46e5;
+  color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.btn-light-primary:hover {
+  background-color: #4338ca;
+  color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-light-secondary {
+  background-color: #ffffff;
+  color: #4f46e5;
+  border: 1px solid #4f46e5;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-light-secondary:hover {
+  background-color: #eef2ff;
+  color: #4338ca;
+  border-color: #4338ca;
+}
+
+/* Status colors for light mode */
+.status-success {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-info {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+/* -----------------------------------------
+   EXISTING STYLES (preserved)
+   ----------------------------------------- */
+
+.theme-transition {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .btn-corporate {
@@ -214,25 +359,16 @@
   box-shadow: var(--shadow-sm);
   border: none;
 }
-
 .btn-corporate:hover {
   background-color: var(--color-accent-secondary);
   color: #ffffff !important;
 }
-
-.btn-corporate * {
-  color: #ffffff !important;
-}
-
+.btn-corporate *,
 .btn-corporate svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
 }
-
-.btn-corporate:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+.btn-corporate:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .card-corporate {
   background-color: var(--color-bg-secondary);
@@ -241,10 +377,7 @@
   border: 1px solid var(--color-border-secondary);
   transition: all 0.3s;
 }
-
-.card-corporate:hover {
-  box-shadow: var(--shadow-lg);
-}
+.card-corporate:hover { box-shadow: var(--shadow-lg); }
 
 .sidebar-item {
   display: flex;
@@ -256,10 +389,7 @@
   cursor: pointer;
   color: var(--color-text-primary);
 }
-
-.sidebar-item:hover {
-  background-color: var(--color-bg-hover);
-}
+.sidebar-item:hover { background-color: var(--color-bg-hover); }
 
 .sidebar-item.active {
   background-color: var(--color-bg-active);
@@ -276,68 +406,40 @@
   position: relative;
   color: var(--color-text-primary);
 }
+.dark .sidebar-item-collapsible { color: hsl(var(--foreground)); }
 
-.dark .sidebar-item-collapsible {
-  color: #f9fafb;
-}
+.sidebar-item-collapsible.collapsed { justify-content: center; width: 100%; }
+.sidebar-item-collapsible.expanded { justify-content: flex-start; padding-left: 16px; padding-right: 16px; }
 
-.sidebar-item-collapsible.collapsed {
-  justify-content: center;
-  width: 100%;
-}
-
-.sidebar-item-collapsible.expanded {
-  justify-content: flex-start;
-  padding-left: 16px;
-  padding-right: 16px;
-}
-
-.sidebar-item-collapsible:hover {
-  background-color: var(--color-bg-hover);
-}
-
-.dark .sidebar-item-collapsible:hover {
-  background-color: #374151;
-}
+.sidebar-item-collapsible:hover { background-color: var(--color-bg-hover); }
+.dark .sidebar-item-collapsible:hover { background-color: #374151; }
 
 .sidebar-item-collapsible.active {
   background-color: var(--color-bg-active);
   color: #ffffff !important;
 }
-
 .dark .sidebar-item-collapsible.active {
-  background-color: #3b82f6;
+  background-color: var(--color-bg-active);
   color: #ffffff !important;
 }
-
 .sidebar-item-collapsible.active:hover {
   background-color: var(--color-bg-active-hover);
   color: #ffffff !important;
 }
 
-.dark .sidebar-item-collapsible.active:hover {
-  background-color: #2563eb;
-  color: #ffffff !important;
-}
-
-/* Ensure active sidebar item text and icons are white */
-.sidebar-item-collapsible.active * {
-  color: #ffffff !important;
-}
-
-.dark .sidebar-item-collapsible.active * {
-  color: #ffffff !important;
-}
-
-/* Ensure active sidebar item SVG icons are white */
-.sidebar-item-collapsible.active svg {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
-}
-
+.sidebar-item-collapsible.active *,
+.sidebar-item-collapsible.active svg,
+.dark .sidebar-item-collapsible.active *,
 .dark .sidebar-item-collapsible.active svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
+}
+
+.sidebar-bottom {
+  background-color: #ffffff !important;
+}
+.dark .sidebar-bottom {
+  background-color: #1f2937 !important;
 }
 
 .gradient-bg {
@@ -386,99 +488,47 @@
 }
 
 /* Input and form elements */
+/* Inputs */
 input, select, textarea {
   background-color: var(--color-bg-secondary);
   color: var(--color-text-primary);
   border-color: var(--color-border-primary);
   transition: all 0.2s;
 }
-
 input:focus, select:focus, textarea:focus {
   border-color: var(--color-border-focus);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in hsl, var(--color-border-focus) 25%, transparent);
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+/* Scrollbars */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--color-bg-tertiary); }
+::-webkit-scrollbar-thumb { background: var(--color-text-tertiary); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-secondary); }
 
-::-webkit-scrollbar-track {
-  background: var(--color-bg-tertiary);
-}
+/* Status helpers */
+.text-success { color: var(--color-success) !important; }
+.bg-success-light { background-color: var(--color-success-light) !important; }
+.text-warning { color: var(--color-warning) !important; }
+.bg-warning-light { background-color: var(--color-warning-light) !important; }
+.text-error { color: var(--color-error) !important; }
+.bg-error-light { background-color: var(--color-error-light) !important; }
 
-::-webkit-scrollbar-thumb {
-  background: var(--color-text-tertiary);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
-}
-
-/* Status colors */
-.text-success {
-  color: var(--color-success) !important;
-}
-
-.bg-success-light {
-  background-color: var(--color-success-light) !important;
-}
-
-.text-warning {
-  color: var(--color-warning) !important;
-}
-
-.bg-warning-light {
-  background-color: var(--color-warning-light) !important;
-}
-
-.text-error {
-  color: var(--color-error) !important;
-}
-
-.bg-error-light {
-  background-color: var(--color-error-light) !important;
-}
-
-/* Dark mode utilities */
+/* “Dark-compatible” surface */
 .dark-compatible {
   color: var(--color-text-primary);
   background-color: var(--color-bg-secondary);
   border-color: var(--color-border-primary);
 }
-
 .dark-compatible:focus {
   border-color: var(--color-border-focus);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in hsl, var(--color-border-focus) 25%, transparent);
 }
 
-/* Tailwind dark mode compatibility */
+/* Optional: honor system dark when no explicit data-theme set */
 @media (prefers-color-scheme: dark) {
   html:not([data-theme]) {
-    --color-bg-primary: #111827;
-    --color-bg-secondary: #1f2937;
-    --color-bg-tertiary: #374151;
-    --color-bg-hover: #374151;
-    --color-bg-active: #3b82f6;
-    --color-bg-active-hover: #2563eb;
-    
-    --color-text-primary: #f9fafb;
-    --color-text-secondary: #d1d5db;
-    --color-text-tertiary: #9ca3af;
-    --color-text-inverse: #111827;
-    
-    --color-border-primary: #374151;
-    --color-border-secondary: #4b5563;
-    --color-border-focus: #3b82f6;
-    
-    --color-accent-primary: #3b82f6;
-    --color-accent-secondary: #2563eb;
-    --color-accent-light: #1e3a8a;
-    
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    /* Just flip the root to dark by toggling the dark selector variables */
+    /* (No separate values needed because we mapped aliases to canonical HSL tokens.) */
   }
 }

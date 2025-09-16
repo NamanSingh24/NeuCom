@@ -438,12 +438,12 @@ Error Rate: ${reportData.performance.errorRate}
   const renderGeneralSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">General Preferences</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">General Preferences</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Language</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
             <select
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={settings.language}
               onChange={(e) => handleSettingChange('language', e.target.value)}
             >
@@ -455,9 +455,9 @@ Error Rate: ${reportData.performance.errorRate}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Timezone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
             <select
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={settings.timezone}
               onChange={(e) => handleSettingChange('timezone', e.target.value)}
             >
@@ -469,7 +469,7 @@ Error Rate: ${reportData.performance.errorRate}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Theme</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Theme</label>
             <div className="flex space-x-3">
               {[
                 { value: 'light', icon: Sun, label: 'Light' },
@@ -480,8 +480,8 @@ Error Rate: ${reportData.performance.errorRate}
                   key={value}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-lg border transition-colors ${
                     theme === value
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                   }`}
                   onClick={() => handleSettingChange('theme', value)}
                   style={theme === value ? { color: '#ffffff !important' } : {}}
@@ -496,12 +496,12 @@ Error Rate: ${reportData.performance.errorRate}
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Application Behavior</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">Application Behavior</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium text-gray-900 dark:text-white">Auto-save changes</label>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Automatically save your work as you type</p>
+              <label className="text-sm font-medium text-gray-800">Auto-save changes</label>
+              <p className="text-sm text-gray-600">Automatically save your work as you type</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -510,13 +510,13 @@ Error Rate: ${reportData.performance.errorRate}
                 checked={settings.autoSave}
                 onChange={(e) => handleSettingChange('autoSave', e.target.checked)}
               />
-              <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
             </label>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium text-gray-900 dark:text-white">Enable notifications</label>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Receive notifications about system events</p>
+              <label className="text-sm font-medium text-gray-800">Enable notifications</label>
+              <p className="text-sm text-gray-600">Receive notifications about system events</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -525,7 +525,7 @@ Error Rate: ${reportData.performance.errorRate}
                 checked={settings.notifications}
                 onChange={(e) => handleSettingChange('notifications', e.target.checked)}
               />
-              <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
             </label>
           </div>
         </div>
@@ -536,12 +536,12 @@ Error Rate: ${reportData.performance.errorRate}
   const renderSecuritySettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Authentication</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">Authentication</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium text-gray-900 dark:text-white">Two-Factor Authentication</label>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Add an extra layer of security to your account</p>
+              <label className="text-sm font-medium text-gray-800">Two-Factor Authentication</label>
+              <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -550,17 +550,17 @@ Error Rate: ${reportData.performance.errorRate}
                 checked={settings.twoFactorAuth}
                 onChange={(e) => handleSettingChange('twoFactorAuth', e.target.checked)}
               />
-              <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
             </label>
           </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Session Timeout (minutes)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Session Timeout (minutes)</label>
             <input
               type="number"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={settings.sessionTimeout}
               onChange={(e) => handleSettingChange('sessionTimeout', parseInt(e.target.value))}
               min="5"
@@ -568,10 +568,10 @@ Error Rate: ${reportData.performance.errorRate}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password Expiry (days)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password Expiry (days)</label>
             <input
               type="number"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={settings.passwordExpiry}
               onChange={(e) => handleSettingChange('passwordExpiry', parseInt(e.target.value))}
               min="30"
@@ -582,14 +582,14 @@ Error Rate: ${reportData.performance.errorRate}
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">API Access</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">API Access</h3>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">API Key</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">API Key</label>
           <div className="flex space-x-2">
             <div className="flex-1 relative">
               <input
                 type={showApiKey ? "text" : "password"}
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 pr-10 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 value="sk-1234567890abcdef..."
                 readOnly
               />
@@ -619,12 +619,12 @@ Error Rate: ${reportData.performance.errorRate}
   const renderAISettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">AI Model Configuration</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">AI Model Configuration</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">AI Model</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">AI Model</label>
             <select
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={settings.aiModel}
               onChange={(e) => handleSettingChange('aiModel', e.target.value)}
             >
@@ -636,9 +636,9 @@ Error Rate: ${reportData.performance.errorRate}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Response Length</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Response Length</label>
             <select
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={settings.responseLength}
               onChange={(e) => handleSettingChange('responseLength', e.target.value)}
             >
@@ -671,12 +671,12 @@ Error Rate: ${reportData.performance.errorRate}
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Processing Options</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">Processing Options</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium text-gray-900 dark:text-white">Voice Processing</label>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Enable voice input and output features</p>
+              <label className="text-sm font-medium text-gray-800">Voice Processing</label>
+              <p className="text-sm text-gray-600">Enable voice input and output features</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -685,13 +685,13 @@ Error Rate: ${reportData.performance.errorRate}
                 checked={settings.voiceEnabled}
                 onChange={(e) => handleSettingChange('voiceEnabled', e.target.checked)}
               />
-              <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
             </label>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium text-gray-900 dark:text-white">Auto-process Documents</label>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Automatically process uploaded documents</p>
+              <label className="text-sm font-medium text-gray-800">Auto-process Documents</label>
+              <p className="text-sm text-gray-600">Automatically process uploaded documents</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -700,7 +700,7 @@ Error Rate: ${reportData.performance.errorRate}
                 checked={settings.autoProcessing}
                 onChange={(e) => handleSettingChange('autoProcessing', e.target.checked)}
               />
-              <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
             </label>
           </div>
         </div>
@@ -711,13 +711,13 @@ Error Rate: ${reportData.performance.errorRate}
   const renderSystemSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">File Processing</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">File Processing</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Max File Size (MB)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Max File Size (MB)</label>
             <input
               type="number"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={settings.maxFileSize}
               onChange={(e) => handleSettingChange('maxFileSize', parseInt(e.target.value))}
               min="1"
@@ -725,10 +725,10 @@ Error Rate: ${reportData.performance.errorRate}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Chunk Size (tokens)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Chunk Size (tokens)</label>
             <input
               type="number"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={settings.chunkSize}
               onChange={(e) => handleSettingChange('chunkSize', parseInt(e.target.value))}
               min="100"
@@ -737,9 +737,9 @@ Error Rate: ${reportData.performance.errorRate}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vector Dimensions</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Vector Dimensions</label>
             <select
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={settings.vectorDimensions}
               onChange={(e) => handleSettingChange('vectorDimensions', parseInt(e.target.value))}
             >
@@ -753,12 +753,12 @@ Error Rate: ${reportData.performance.errorRate}
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">System Maintenance</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">System Maintenance</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Backup Frequency</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Backup Frequency</label>
             <select
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={settings.backupFrequency}
               onChange={(e) => handleSettingChange('backupFrequency', e.target.value)}
             >
@@ -769,9 +769,9 @@ Error Rate: ${reportData.performance.errorRate}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Log Level</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Log Level</label>
             <select
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={settings.logLevel}
               onChange={(e) => handleSettingChange('logLevel', e.target.value)}
             >
@@ -785,25 +785,25 @@ Error Rate: ${reportData.performance.errorRate}
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">System Actions</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">System Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <button 
             onClick={handleClearCache}
-            className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center justify-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
           >
             <RefreshCw className="h-4 w-4" />
             <span>Clear Cache</span>
           </button>
           <button 
             onClick={handleExportLogs}
-            className="flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center justify-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
           >
             <Download className="h-4 w-4" />
             <span>Export Logs</span>
           </button>
           <button 
             onClick={handleSystemReport}
-            className="flex items-center justify-center space-x-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+            className="flex items-center justify-center space-x-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
           >
             <BarChart3 className="h-4 w-4" />
             <span>System Report</span>
@@ -816,14 +816,14 @@ Error Rate: ${reportData.performance.errorRate}
   const renderNotificationSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Notification Channels</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">Notification Channels</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Mail className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <Mail className="h-5 w-5 text-gray-600" />
               <div>
-                <label className="text-sm font-medium text-gray-900 dark:text-white">Email Notifications</label>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Receive notifications via email</p>
+                <label className="text-sm font-medium text-gray-800">Email Notifications</label>
+                <p className="text-sm text-gray-600">Receive notifications via email</p>
               </div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -833,15 +833,15 @@ Error Rate: ${reportData.performance.errorRate}
                 checked={settings.emailNotifications}
                 onChange={(e) => handleSettingChange('emailNotifications', e.target.checked)}
               />
-              <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
             </label>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Smartphone className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <Smartphone className="h-5 w-5 text-gray-600" />
               <div>
-                <label className="text-sm font-medium text-gray-900 dark:text-white">Push Notifications</label>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Receive push notifications on your device</p>
+                <label className="text-sm font-medium text-gray-800">Push Notifications</label>
+                <p className="text-sm text-gray-600">Receive push notifications on your device</p>
               </div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -851,19 +851,19 @@ Error Rate: ${reportData.performance.errorRate}
                 checked={settings.pushNotifications}
                 onChange={(e) => handleSettingChange('pushNotifications', e.target.checked)}
               />
-              <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
             </label>
           </div>
         </div>
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Notification Types</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">Notification Types</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium text-gray-900 dark:text-white">Document Processed</label>
-              <p className="text-sm text-gray-500 dark:text-gray-400">When a document is successfully processed</p>
+              <label className="text-sm font-medium text-gray-800">Document Processed</label>
+              <p className="text-sm text-gray-600">When a document is successfully processed</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -872,13 +872,13 @@ Error Rate: ${reportData.performance.errorRate}
                 checked={settings.documentProcessed}
                 onChange={(e) => handleSettingChange('documentProcessed', e.target.checked)}
               />
-              <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
             </label>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium text-gray-900 dark:text-white">System Alerts</label>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Important system notifications and alerts</p>
+              <label className="text-sm font-medium text-gray-800">System Alerts</label>
+              <p className="text-sm text-gray-600">Important system notifications and alerts</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -887,13 +887,13 @@ Error Rate: ${reportData.performance.errorRate}
                 checked={settings.systemAlerts}
                 onChange={(e) => handleSettingChange('systemAlerts', e.target.checked)}
               />
-              <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
             </label>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium text-gray-900 dark:text-white">Weekly Reports</label>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Weekly usage and performance reports</p>
+              <label className="text-sm font-medium text-gray-800">Weekly Reports</label>
+              <p className="text-sm text-gray-600">Weekly usage and performance reports</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -902,7 +902,7 @@ Error Rate: ${reportData.performance.errorRate}
                 checked={settings.weeklyReports}
                 onChange={(e) => handleSettingChange('weeklyReports', e.target.checked)}
               />
-              <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
             </label>
           </div>
         </div>
@@ -913,14 +913,14 @@ Error Rate: ${reportData.performance.errorRate}
   const renderDataSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Data Management</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">Data Management</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="card-corporate p-4">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
             <div className="flex items-center space-x-3 mb-3">
-              <FileText className="h-8 w-8 text-blue-600" />
+              <FileText className="h-8 w-8 text-indigo-600" />
               <div>
-                <h4 className="font-medium text-gray-900 dark:text-white">Documents</h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <h4 className="font-medium text-gray-800">Documents</h4>
+                <p className="text-sm text-gray-600">
                   {dataStats.documentSizeGB ? `${dataStats.documentSizeGB} GB` : '--'}
                   {' • '}
                   {dataStats.documentCount ? `${dataStats.documentCount} files` : '--'}
@@ -930,25 +930,25 @@ Error Rate: ${reportData.performance.errorRate}
             <div className="space-y-2">
               <button 
                 onClick={handleExportAllDocuments}
-                className="w-full text-left px-3 py-2 text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                className="w-full text-left px-3 py-2 text-sm bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors"
               >
                 Export All Documents
               </button>
               <button 
                 onClick={handleDeleteAllDocuments}
-                className="w-full text-left px-3 py-2 text-sm bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                className="w-full text-left px-3 py-2 text-sm bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
               >
                 Delete All Documents
               </button>
             </div>
           </div>
           
-          <div className="card-corporate p-4">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
             <div className="flex items-center space-x-3 mb-3">
-              <Database className="h-8 w-8 text-green-600" />
+              <Database className="h-8 w-8 text-emerald-600" />
               <div>
-                <h4 className="font-medium text-gray-900 dark:text-white">Vector Database</h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <h4 className="font-medium text-gray-800">Vector Database</h4>
+                <p className="text-sm text-gray-600">
                   {dataStats.vectorDbSizeGB ? `${dataStats.vectorDbSizeGB} GB` : '--'}
                   {' • '}
                   {dataStats.vectorCount ? `${dataStats.vectorCount.toLocaleString()} vectors` : '--'}
@@ -958,13 +958,13 @@ Error Rate: ${reportData.performance.errorRate}
             <div className="space-y-2">
               <button 
                 onClick={handleBackupDatabase}
-                className="w-full text-left px-3 py-2 text-sm bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+                className="w-full text-left px-3 py-2 text-sm bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition-colors"
               >
                 Backup Database
               </button>
               <button 
                 onClick={handleRebuildIndex}
-                className="w-full text-left px-3 py-2 text-sm bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 rounded-lg hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors"
+                className="w-full text-left px-3 py-2 text-sm bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors"
               >
                 Rebuild Index
               </button>
@@ -974,14 +974,14 @@ Error Rate: ${reportData.performance.errorRate}
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Privacy & Compliance</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4">Privacy & Compliance</h3>
         <div className="space-y-4">
-          <div className="card-corporate p-4 border-yellow-200 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
             <div className="flex items-start space-x-3">
-              <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+              <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
               <div>
-                <h4 className="font-medium text-yellow-800 dark:text-yellow-200">Data Retention Policy</h4>
-                <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                <h4 className="font-medium text-amber-800">Data Retention Policy</h4>
+                <p className="text-sm text-amber-700 mt-1">
                   Documents and conversation data are retained for 365 days. 
                   After this period, data is automatically purged unless explicitly saved.
                 </p>
@@ -992,7 +992,7 @@ Error Rate: ${reportData.performance.errorRate}
           <div className="space-y-3">
             <button 
               onClick={handleDownloadMyData}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
             >
               <Download className="h-4 w-4" />
               <span>Download My Data</span>
@@ -1032,19 +1032,19 @@ Error Rate: ${reportData.performance.errorRate}
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="card-corporate p-6">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-1">Manage your account, preferences, and system configuration</p>
+            <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
+            <p className="text-gray-600 mt-1">Manage your account, preferences, and system configuration</p>
           </div>
           
           {/* Save Status */}
           {saveStatus && (
             <div className={`flex items-center space-x-2 px-3 py-2 rounded-lg ${
-              saveStatus === 'success' ? 'bg-green-100 text-green-800' :
-              saveStatus === 'error' ? 'bg-red-100 text-red-800' :
-              'bg-blue-100 text-blue-800'
+              saveStatus === 'success' ? 'bg-emerald-100 text-emerald-700' :
+              saveStatus === 'error' ? 'bg-red-100 text-red-700' :
+              'bg-indigo-100 text-indigo-700'
             }`}>
               {saveStatus === 'success' ? <Check className="h-4 w-4" /> :
                saveStatus === 'error' ? <X className="h-4 w-4" /> :
@@ -1059,15 +1059,15 @@ Error Rate: ${reportData.performance.errorRate}
         </div>
 
         {/* Horizontal Tab Navigation */}
-        <div className="mt-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="mt-6 border-b border-gray-200">
           <nav className="flex space-x-8 overflow-x-auto">
             {settingsTabs.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 className={`flex items-center space-x-2 py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
                   activeTab === id
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-indigo-500 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
                 onClick={() => setActiveTab(id)}
               >
@@ -1080,13 +1080,13 @@ Error Rate: ${reportData.performance.errorRate}
       </div>
 
       {/* Settings Content */}
-      <div className="card-corporate">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200">
         <div className="p-6">
           <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">
               {settingsTabs.find(tab => tab.id === activeTab)?.label}
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600">
               {activeTab === 'general' && 'Configure basic application preferences and behavior'}
               {activeTab === 'security' && 'Set up security options and access controls'}
               {activeTab === 'ai' && 'Configure AI models and processing settings'}
@@ -1100,10 +1100,10 @@ Error Rate: ${reportData.performance.errorRate}
         </div>
         
         {/* Sticky Action Bar */}
-        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-6 py-4">
+        <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <button
-              className="flex items-center space-x-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
               onClick={handleResetSettings}
             >
               <RefreshCw className="h-4 w-4" />
@@ -1111,7 +1111,7 @@ Error Rate: ${reportData.performance.errorRate}
             </button>
             
             <div className="flex space-x-3">
-              <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <button className="px-4 py-2 border border-gray-300 text-gray-700 bg-white rounded-lg hover:bg-gray-50 transition-colors">
                 Cancel
               </button>
               <button

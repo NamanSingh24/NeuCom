@@ -134,28 +134,28 @@ const DashboardPage = () => {
       value: uploadedFiles.length.toString(), 
       change: '+12%', 
       icon: FileText, 
-      color: 'text-blue-600' 
+      color: 'text-indigo-600' 
     },
     { 
       title: 'Conversation Length', 
       value: messages.length.toString(), 
       change: '+8%', 
       icon: MessageSquare, 
-      color: 'text-green-600' 
+      color: 'text-emerald-600' 
     },
     { 
       title: 'Response Time', 
       value: '1.2s', 
       change: '-15%', 
       icon: Clock, 
-      color: 'text-purple-600' 
+      color: 'text-violet-600' 
     },
     { 
       title: 'Supported Formats', 
       value: '4', 
       change: 'stable', 
       icon: TrendingUp, 
-      color: 'text-orange-600' 
+      color: 'text-amber-600' 
     },
   ];
 
@@ -164,22 +164,22 @@ const DashboardPage = () => {
       case 'home':
         return (
           <div className="space-y-6">
-            <div className="gradient-bg rounded-2xl p-8 text-white relative overflow-hidden">
+            <div className="bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-700 rounded-2xl p-8 text-white relative overflow-hidden shadow-xl">
               <div className="relative max-w-2xl">
-                <h1 className="text-3xl font-bold mb-2 text-[#eee]" >Welcome to NeuCom</h1>
+                <h1 className="text-3xl font-bold mb-2 text-white">Welcome to Neucom</h1>
                 <p className="text-blue-100 text-lg mb-6">
                   Your intelligent assistant for Standard Operating Procedures. Upload documents, ask questions, and get instant, accurate guidance powered by AI.
                 </p>
                 <div className="flex space-x-4">
                   <button 
                     onClick={() => setActiveTab('upload')}
-                    className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+                    className="bg-white text-indigo-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors shadow-md"
                   >
                     Upload Documents
                   </button>
                   <button 
                     onClick={() => setActiveTab('chat')}
-                    className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-400 transition-colors border border-blue-400"
+                    className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-400 transition-colors border border-blue-400 shadow-md"
                   >
                     Start Chatting
                   </button>
@@ -261,12 +261,11 @@ const DashboardPage = () => {
       default:
         return (
           <div className="text-center py-12">
-            <div className="card-corporate p-12 max-w-md mx-auto">
-              {/* Brain icon background */}
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-12 max-w-md mx-auto">
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">
                 {sidebarItems.find(item => item.id === activeTab)?.label}
               </h2>
-              <p className="text-gray-700 dark:text-gray-300">This feature is coming soon. Stay tuned for updates!</p>
+              <p className="text-gray-600">This feature is coming soon. Stay tuned for updates!</p>
             </div>
           </div>
         );
@@ -274,7 +273,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-slate-50 flex">
       <Sidebar className="" sidebarItems={sidebarItems} activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="flex-1 ml-16 p-8 transition-all duration-300">
         <AnimatePresence mode="wait">

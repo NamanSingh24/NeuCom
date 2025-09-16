@@ -5,7 +5,7 @@ const UploadArea = ({ fileInputRef, handleFileUpload, uploadProgress, uploadedFi
   <div className="space-y-6">
     <div className="flex items-center justify-between">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Upload SOP Documents</h1>
+        <h1 className="text-2xl font-bold text-gray-800">Upload SOP Documents</h1>
         <p className="text-gray-600 mt-1">Add new Standard Operating Procedures to your knowledge base</p>
       </div>
       <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -13,13 +13,13 @@ const UploadArea = ({ fileInputRef, handleFileUpload, uploadProgress, uploadedFi
         <span>Secure & Encrypted</span>
       </div>
     </div>
-    <div className="card-corporate p-8">
+    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
       <div 
-        className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center flex-col justify-center items-center hover:border-blue-400 transition-colors cursor-pointer group"
+        className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center flex-col justify-center items-center hover:border-indigo-400 transition-colors cursor-pointer group"
         onClick={() => fileInputRef.current?.click()}
       >
-        <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4 group-hover:text-blue-500 transition-colors" />
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload SOP Documents</h3>
+        <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4 group-hover:text-indigo-500 transition-colors" />
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Upload SOP Documents</h3>
         <p className="text-gray-600 mb-4">
           Drag and drop your files here, or click to browse
         </p>
@@ -43,28 +43,28 @@ const UploadArea = ({ fileInputRef, handleFileUpload, uploadProgress, uploadedFi
       </div>
     </div>
     {Object.keys(uploadProgress).length > 0 && (
-      <div className="card-corporate p-6">
-        <h2 className="text-xl font-semibold mb-4">Upload Progress</h2>
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">Upload Progress</h2>
         <div className="space-y-3">
           {Object.entries(uploadProgress).map(([fileId, { file, progress, status }]) => (
-            <div key={fileId} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-              <FileText className="h-5 w-5 text-blue-600" />
+            <div key={fileId} className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg border border-gray-100">
+              <FileText className="h-5 w-5 text-indigo-600" />
               <div className="flex-1">
-                <p className="font-medium">{file.name}</p>
+                <p className="font-medium text-gray-800">{file.name}</p>
                 <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                   <div 
                     className={`h-2 rounded-full transition-all duration-300 ${
-                      status === 'completed' ? 'bg-green-500' :
+                      status === 'completed' ? 'bg-emerald-500' :
                       status === 'error' ? 'bg-red-500' :
-                      'bg-blue-500'
+                      'bg-indigo-500'
                     }`}
                     style={{ width: `${progress}%` }}
                   ></div>
                 </div>
               </div>
               <div className="text-right">
-                {status === 'uploading' && <Loader2 className="h-4 w-4 animate-spin text-blue-600" />}
-                {status === 'completed' && <CheckCircle className="h-4 w-4 text-green-600" />}
+                {status === 'uploading' && <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />}
+                {status === 'completed' && <CheckCircle className="h-4 w-4 text-emerald-600" />}
                 {status === 'error' && <AlertCircle className="h-4 w-4 text-red-600" />}
               </div>
             </div>
@@ -73,18 +73,18 @@ const UploadArea = ({ fileInputRef, handleFileUpload, uploadProgress, uploadedFi
       </div>
     )}
     {uploadedFiles.length > 0 && (
-      <div className="card-corporate p-6">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Processed Documents</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Processed Documents</h2>
           <span className="text-sm text-gray-500">{uploadedFiles.length} documents</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {uploadedFiles.map((file, index) => (
-            <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-100">
               <div className="flex items-center space-x-3">
-                <FileText className="h-5 w-5 text-blue-600" />
+                <FileText className="h-5 w-5 text-indigo-600" />
                 <div>
-                  <p className="font-medium">{file.name}</p>
+                  <p className="font-medium text-gray-800">{file.name}</p>
                   <div className="flex items-center space-x-4 text-sm text-gray-500">
                     <span>{(file.size / 1024 / 1024).toFixed(2)} MB</span>
                     {file.chunks_created && <span>{file.chunks_created} chunks</span>}
@@ -92,7 +92,7 @@ const UploadArea = ({ fileInputRef, handleFileUpload, uploadProgress, uploadedFi
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">
                   {file.processed ? 'Processed' : 'Processing...'}
                 </span>
                 <button 
