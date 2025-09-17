@@ -481,3 +481,21 @@ class RAGEngine:
     def __del__(self):
         """Cleanup on deletion"""
         self.close()
+    
+    def get_chunk_count_by_source(self, filename: str) -> int:
+        """
+        Return the number of chunks for a given source filename.
+        """
+        try:
+            # Get all documents/chunks for this source
+            results = self.collection.get(
+                where={"source": filename},
+                include=['documents']
+            )
+            if results and 'documents' in results and results['documents']:
+                return len(results['documents'])
+            else:
+                return 0
+        except Exception as e:
+            logger.error(f"Error getting chunk count for {filename}: {str(e)}")
+            return 0

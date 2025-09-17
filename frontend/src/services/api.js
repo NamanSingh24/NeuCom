@@ -103,6 +103,18 @@ export const apiService = {
     return response.data;
   },
 
+  // Files endpoints
+  getFiles: async () => {
+    const response = await api.get('/files');
+    return response.data;
+  },
+
+  // Get chunk counts for each file
+  getChunks: async () => {
+    const response = await api.get('/files/chunks');
+    return response.data;
+  },
+
   // Procedure management
   startProcedure: async (procedureName) => {
     const response = await api.post('/procedure/start', { 

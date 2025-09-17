@@ -26,6 +26,7 @@ const DashboardPage = () => {
   const [uploadProgress, setUploadProgress] = useState({});
   const [contextFilter, setContextFilter] = useState(null);
   const [documents, setDocuments] = useState([]);
+  const [totalFiles, setTotalFiles] = useState(0);
   const fileInputRef = useRef(null);
 
   const sidebarItems = [
@@ -40,6 +41,7 @@ const DashboardPage = () => {
 
   useEffect(() => {
     loadDocuments();
+    fetchTotalFiles();
   }, []);
 
   const loadDocuments = async () => {
@@ -48,6 +50,16 @@ const DashboardPage = () => {
       setDocuments(docs.documents || []);
     } catch (error) {
       console.error('Error loading documents:', error);
+    }
+  };
+
+  const fetchTotalFiles = async () => {
+    try {
+      const response = await apiService.getFiles();
+      setTotalFiles(response.total_files || response.files.length || 0);
+    } catch (error) {
+      setTotalFiles(0);
+      console.error('Error fetching total files:', error);
     }
   };
 
@@ -131,7 +143,7 @@ const DashboardPage = () => {
   const stats = [
     { 
       title: 'Documents Processed', 
-      value: uploadedFiles.length.toString(), 
+      value: totalFiles.toString(), 
       change: '+12%', 
       icon: FileText, 
       color: 'text-blue-600' 
@@ -204,7 +216,7 @@ const DashboardPage = () => {
             fileInputRef={fileInputRef}
             handleFileUpload={handleFileUpload}
             uploadProgress={uploadProgress}
-            uploadedFiles={uploadedFiles}
+            // uploadedFiles={uploadedFiles}
             removeUploadedFile={removeUploadedFile}
           />
         );
@@ -234,7 +246,7 @@ const DashboardPage = () => {
       case 'documents':
         return (
           <DocumentsArea
-            uploadedFiles={documents}
+            // uploadedFiles={documents}
             onUploadNew={() => setActiveTab('upload')}
           />
         );

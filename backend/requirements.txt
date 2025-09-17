@@ -73,3 +73,7 @@ click==8.1.8
 tqdm==4.67.1
 
 
+# Voice handler
+pyttsx3-2.99
+
+

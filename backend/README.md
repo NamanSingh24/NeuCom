@@ -1,1 +1,2 @@
 -> Used postgresSQL 16.10.1 version
+-> Install eSpeak for Windows 

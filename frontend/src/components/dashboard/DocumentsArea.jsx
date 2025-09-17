@@ -1,35 +1,66 @@
-import React, { useState } from 'react';
 import {
-  Search,
-  Filter,
-  Upload,
-  FileText,
-  Download,
-  Trash2,
-  Eye,
-  Calendar,
-  Clock,
-  CheckCircle,
   AlertCircle,
-  XCircle,
-  RefreshCw,
-  MoreVertical,
-  Edit,
-  Share,
-  Plus,
+  Calendar,
+  CheckCircle,
+  Download,
+  FileText,
   Grid3X3,
   List,
+  MoreVertical,
+  Plus,
+  RefreshCw,
+  Search,
   SortAsc,
-  SortDesc
+  SortDesc,
+  Trash2,
+  Upload,
+  XCircle
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { apiService } from '../../services/api';
 
-const DocumentsArea = ({ uploadedFiles = [], onUploadNew }) => {
+const DocumentsArea = ({ onUploadNew }) => {
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [totalFiles, setTotalFiles] = useState(0);
+  const [chunksMap, setChunksMap] = useState({}); // Map filename -> chunk count
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
   const [viewMode, setViewMode] = useState('table'); // table or grid
   const [selectedDocs, setSelectedDocs] = useState([]);
+
+  useEffect(() => {
+    const fetchFilesAndChunks = async () => {
+      try {
+        const filesResponse = await apiService.getFiles();
+        const files = filesResponse.files.map(file => ({
+          name: file.name,
+          size: file.size_bytes,
+          uploaded_at: file.modified_at,
+          status: 'processed',
+        }));
+        setUploadedFiles(files);
+        setTotalFiles(filesResponse.total_files || files.length);
+
+        // Fetch chunk counts for each file
+        const chunksResponse = await apiService.getChunks();
+        const chunkMap = {};
+        if (chunksResponse && chunksResponse.files) {
+          chunksResponse.files.forEach(f => {
+            chunkMap[f.name] = f.chunk_count;
+          });
+        }
+        setChunksMap(chunkMap);
+      } catch (err) {
+        setUploadedFiles([]);
+        setTotalFiles(0);
+        setChunksMap({});
+        console.log('Error fetching files or chunks:', err);
+      }
+    };
+    fetchFilesAndChunks();
+  }, []);
 
   // Filter and sort documents
   const filteredDocuments = uploadedFiles
@@ -190,7 +221,7 @@ const DocumentsArea = ({ uploadedFiles = [], onUploadNew }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 dark:text-gray-400 text-sm">Total Documents</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{uploadedFiles.length}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalFiles}</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-lg">
               <FileText className="h-6 w-6 text-blue-600" />
@@ -419,7 +450,7 @@ const DocumentsArea = ({ uploadedFiles = [], onUploadNew }) => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 font-mono">{formatFileSize(doc.size)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{doc.chunks_created || 'N/A'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{chunksMap[doc.name] ?? 'N/A'}</td>
                     <td className="px-6 py-4 text-sm text-gray-500">
                       <div className="flex items-center space-x-1">
                         <Calendar className="h-3 w-3" />
@@ -487,7 +518,7 @@ const DocumentsArea = ({ uploadedFiles = [], onUploadNew }) => {
 
               <div className="text-xs text-gray-500 space-y-1">
                 <div>Size: {formatFileSize(doc.size)}</div>
-                <div>Chunks: {doc.chunks_created || 'N/A'}</div>
+                <div>Chunks: {chunksMap[doc.name] ?? 'N/A'}</div>
                 <div className="flex items-center space-x-1">
                   <Calendar className="h-3 w-3" />
                   <span>{formatDate(doc.uploaded_at)}</span>

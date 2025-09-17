@@ -662,6 +662,30 @@ async def delete_document(filename: str):
         logger.error(f"Error deleting document: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/files/chunks")
+async def get_file_chunks():
+    """
+    Get chunk counts for each uploaded document in the uploads folder using the RAG engine.
+    """
+    try:
+        files_chunks = []
+        for file_path in UPLOAD_DIR.glob("*"):
+            if file_path.is_file():
+                # Get chunk count from RAG engine
+                chunk_count = rag_engine.get_chunk_count_by_source(file_path.name)
+                files_chunks.append({
+                    "name": file_path.name,
+                    "chunk_count": chunk_count
+                })
+        return {
+            "success": True,
+            "files": files_chunks,
+            "total_files": len(files_chunks)
+        }
+    except Exception as e:
+        logger.error(f"Error getting file chunks: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Settings endpoints
 @app.get("/settings")
 async def get_settings():
