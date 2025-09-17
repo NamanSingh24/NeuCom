@@ -213,16 +213,16 @@ const ChatArea = ({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Neo Assistant</h1>
+          <h1 className="text-2xl font-bold text-gray-800">SOP Assistant</h1>
           <p className="text-gray-600 mt-1">Ask questions about your uploaded procedures</p>
         </div>
         <div className="flex items-center space-x-3">
           <button
             onClick={handleVoiceModeToggle}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors shadow-sm ${
               isVoiceMode 
-                ? 'bg-red-100 text-red-700 hover:bg-red-200' 
-                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                ? 'bg-red-100 text-red-700 hover:bg-red-200 border border-red-200' 
+                : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200 border border-indigo-200'
             }`}
           >
             {isVoiceMode ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
@@ -246,30 +246,30 @@ const ChatArea = ({
 
       {/* Voice Status Indicators */}
       {isVoiceMode && (
-        <div className="flex items-center justify-center space-x-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="flex items-center justify-center space-x-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg shadow-sm">
           <div className="flex items-center space-x-2">
             <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-gray-300'}`}></div>
-            <span className="text-sm text-blue-700">
+            <span className="text-sm text-indigo-700">
               {isRecording ? 'Recording...' : isTranscribing ? 'Processing...' : 'Ready to listen'}
             </span>
           </div>
         </div>
       )}
 
-      <div className="card-corporate p-6 h-[600px] flex flex-col">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 h-[600px] flex flex-col">
         {/* Header with voice controls and clear button */}
         <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
           <div className="flex items-center space-x-4">
-            {/* <h3 className="text-lg font-semibold text-gray-900">SOP Chat Assistant</h3> */}
+            <h3 className="text-lg font-semibold text-gray-800">SOP Chat Assistant</h3>
             
             {/* Voice Response Toggle */}
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setVoiceEnabled(!voiceEnabled)}
-                className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm transition-colors ${
+                className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm transition-colors shadow-sm ${
                   voiceEnabled 
-                    ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
                 }`}
                 title={voiceEnabled ? 'Disable voice responses' : 'Enable voice responses'}
               >
@@ -283,7 +283,7 @@ const ChatArea = ({
                   <select
                     value={selectedVoice}
                     onChange={(e) => setSelectedVoice(e.target.value)}
-                    className="text-xs px-2 py-1 border rounded-md bg-white"
+                    className="text-xs px-2 py-1 border border-gray-300 rounded-md bg-white text-gray-700"
                     title="Select voice"
                   >
                     {availableVoices.map(voice => (
@@ -335,18 +335,18 @@ const ChatArea = ({
           {messages.length === 0 ? (
             <div className="text-center text-gray-500 py-12">
               <MessageSquare className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-              <h3 className="text-lg font-medium mb-2">Start a conversation</h3>
-              <p className="text-sm">Ask questions about your SOP documents and get instant, accurate answers.</p>
+              <h3 className="text-lg font-medium mb-2 text-gray-700">Start a conversation</h3>
+              <p className="text-sm text-gray-600">Ask questions about your SOP documents and get instant, accurate answers.</p>
               <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3 max-w-md mx-auto">
                 <button 
                   onClick={() => setInputMessage("What are the emergency procedures?")}
-                  className="p-3 text-left bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-sm"
+                  className="p-3 text-left bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors text-sm text-gray-700 border border-indigo-100"
                 >
                   "What are the emergency procedures?"
                 </button>
                 <button 
                   onClick={() => setInputMessage("Show me safety guidelines")}
-                  className="p-3 text-left bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-sm"
+                  className="p-3 text-left bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors text-sm text-gray-700 border border-emerald-100"
                 >
                   "Show me safety guidelines"
                 </button>
@@ -365,10 +365,10 @@ const ChatArea = ({
                       : 'max-w-md lg:max-w-2xl'
                   } px-4 py-3 rounded-lg ${
                     message.sender === 'user'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-indigo-600 text-white shadow-md'
                       : message.isError
                       ? 'bg-red-100 text-red-800 border border-red-200'
-                      : 'bg-gray-100 text-gray-900'
+                      : 'bg-gray-100 text-gray-800 shadow-sm'
                   }`}
                 >
                   {message.sender === 'user' ? (
@@ -379,34 +379,13 @@ const ChatArea = ({
                         {message.timestamp}
                       </p>
                     </div>
-                  ) : message.isError ? (
-                    // Error message - simple text display
+                  ) : (
+                    // AI message - with FormattedMessage component
                     <div>
-                      <p className="text-sm">{message.text}</p>
+                      <FormattedMessage content={message.text} />
                       <p className="text-xs mt-1 text-gray-500">
                         {message.timestamp}
                       </p>
-                    </div>
-                  ) : (
-                    // AI response - use FormattedMessage component
-                    <div>
-                      <div className="flex items-start justify-between mb-2">
-                        <span className="text-xs font-medium text-gray-500">AI Assistant</span>
-                        {/* Voice synthesis button for AI responses */}
-                        <button
-                          onClick={() => synthesizeResponse(message.text)}
-                          disabled={isSpeaking}
-                          className={`p-1 rounded-full transition-colors ${
-                            isSpeaking 
-                              ? 'text-green-600 animate-pulse' 
-                              : 'text-gray-400 hover:text-blue-600'
-                          }`}
-                          title={`Play with ${availableVoices.find(v => v.id === selectedVoice)?.name || selectedVoice} voice`}
-                        >
-                          <Volume2 className="h-3 w-3" />
-                        </button>
-                      </div>
-                      <FormattedMessage message={message} />
                     </div>
                   )}
                 </div>
@@ -415,28 +394,28 @@ const ChatArea = ({
           )}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-gray-100 px-4 py-3 rounded-lg flex items-center space-x-2">
-                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                <span className="text-sm text-gray-600">AI is thinking...</span>
+              <div className="bg-gray-100 px-4 py-3 rounded-lg flex items-center space-x-2 shadow-sm">
+                <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />
+                <span className="text-sm text-gray-700">AI is thinking...</span>
               </div>
             </div>
           )}
           {isTranscribing && (
             <div className="flex justify-end">
-              <div className="bg-blue-100 px-4 py-3 rounded-lg flex items-center space-x-2">
-                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                <span className="text-sm text-blue-600">Transcribing audio...</span>
+              <div className="bg-indigo-100 px-4 py-3 rounded-lg flex items-center space-x-2 shadow-sm">
+                <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />
+                <span className="text-sm text-indigo-700">Transcribing audio...</span>
               </div>
             </div>
           )}
           {isSpeaking && (
             <div className="flex justify-start">
-              <div className="bg-green-100 px-4 py-3 rounded-lg flex items-center space-x-2">
-                <Volume2 className="h-4 w-4 animate-pulse text-green-600" />
-                <span className="text-sm text-green-600">Speaking response...</span>
+              <div className="bg-emerald-100 px-4 py-3 rounded-lg flex items-center space-x-2 shadow-sm">
+                <Volume2 className="h-4 w-4 animate-pulse text-emerald-600" />
+                <span className="text-sm text-emerald-700">Speaking response...</span>
                 <button
                   onClick={stopSpeech}
-                  className="ml-2 text-green-500 hover:text-green-700"
+                  className="ml-2 text-emerald-600 hover:text-emerald-800"
                   title="Stop speech"
                 >
                   <VolumeX className="h-3 w-3" />
@@ -452,17 +431,17 @@ const ChatArea = ({
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={isVoiceMode ? "Speak or type your question..." : "Ask about SOP procedures..."}
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm bg-white text-gray-800"
             disabled={isLoading || isRecording || isTranscribing}
           />
           {isVoiceMode && (
             <button
               onClick={handleMicButtonClick}
               disabled={isLoading || isTranscribing}
-              className={`flex items-center justify-center px-4 py-3 rounded-lg transition-colors border-2 ${
+              className={`flex items-center justify-center px-4 py-3 rounded-lg transition-colors border-2 shadow-sm ${
                 isRecording 
                   ? 'bg-red-600 text-white border-red-600 hover:bg-red-700' 
-                  : 'bg-white text-blue-600 border-blue-600 hover:bg-blue-50'
+                  : 'bg-white text-indigo-600 border-indigo-600 hover:bg-indigo-50'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {isRecording ? (

@@ -202,8 +202,8 @@ const DocumentsArea = ({ onUploadNew }) => {
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Document Management</h1>
-          <p className="text-gray-700 dark:text-gray-300 mt-1">Manage your SOP documents and monitor processing status</p>
+          <h1 className="text-2xl font-bold text-gray-800">Document Management</h1>
+          <p className="text-gray-600 mt-1">Manage your SOP documents and monitor processing status</p>
         </div>
         <button
           onClick={onUploadNew}
@@ -217,28 +217,28 @@ const DocumentsArea = ({ onUploadNew }) => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="card-corporate p-6">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 dark:text-gray-400 text-sm">Total Documents</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalFiles}</p>
             </div>
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <FileText className="h-6 w-6 text-blue-600" />
+            <div className="p-3 bg-indigo-100 rounded-lg">
+              <FileText className="h-6 w-6 text-indigo-600" />
             </div>
           </div>
         </div>
 
-        <div className="card-corporate p-6">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">Processed</p>
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-gray-600 text-sm">Processed</p>
+              <p className="text-2xl font-bold text-emerald-600">
                 {uploadedFiles.filter(doc => doc.status === 'processed').length}
               </p>
             </div>
-            <div className="p-3 bg-green-100 rounded-lg">
-              <CheckCircle className="h-6 w-6 text-green-600" />
+            <div className="p-3 bg-emerald-100 rounded-lg">
+              <CheckCircle className="h-6 w-6 text-emerald-600" />
             </div>
           </div>
         </div>
