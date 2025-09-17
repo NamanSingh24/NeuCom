@@ -26,7 +26,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from document_processor import DocumentProcessor
 from rag_engine import RAGEngine
 from groq_client import GroqClient
-from voice_handler import VoiceHandler
+from voice_handler import VoiceHandler, DEFAULT_FRIENDLY_VOICE
 from sop_chat import SOPChat
 # Knowledge Graph Ingestion
 from Knowledge_Graph.ingestion import get_neo4j_driver, ingest_sop_to_kg
@@ -123,6 +123,7 @@ class ProcedureRequest(BaseModel):
 class UserPreferencesRequest(BaseModel):
     voice_enabled: bool = Field(default=False)
     voice_speed: float = Field(default=1.0, ge=0.25, le=4.0)
+    tts_voice: Optional[str] = Field(default=None)
     auto_advance_steps: bool = Field(default=False)
     safety_reminders: bool = Field(default=True)
 
@@ -167,7 +168,7 @@ class SettingsRequest(BaseModel):
     log_level: Optional[str] = Field(default="info")
     
     # Voice Settings
-    tts_voice: Optional[str] = Field(default="en")
+    tts_voice: Optional[str] = Field(default=DEFAULT_FRIENDLY_VOICE)
     stt_model: Optional[str] = Field(default="base")
     voice_speed: Optional[float] = Field(default=1.0, ge=0.25, le=4.0)
     
@@ -369,16 +370,17 @@ async def synthesize_speech(text: str, voice_id: str = "alloy", speed: float = 1
         
         # Change voice if requested
         if voice_id != voice_handler.tts_voice:
-            voice_handler.change_voice(voice_id)
-        
+            if voice_handler.change_voice(voice_id):
+                sop_chat.set_user_preferences({"tts_voice": voice_id})
+
         # Generate audio
-        audio_data = voice_handler.text_to_speech(text, speed=speed)
-        
+        audio_data = voice_handler.text_to_speech(text, voice=voice_id, speed=speed)
+
         # Return as streaming response
         return StreamingResponse(
             BytesIO(audio_data),
-            media_type="audio/mpeg",
-            headers={"Content-Disposition": "attachment; filename=response.mp3"}
+            media_type="audio/wav",
+            headers={"Content-Disposition": "attachment; filename=response.wav"}
         )
         
     except Exception as e:
@@ -718,7 +720,7 @@ async def get_settings():
             "log_level": "info",
             
             # Voice Settings
-            "tts_voice": os.getenv("TTS_VOICE", "en"),
+            "tts_voice": os.getenv("TTS_VOICE", DEFAULT_FRIENDLY_VOICE),
             "stt_model": os.getenv("STT_MODEL", "base"),
             "voice_speed": 1.0,
             
@@ -815,7 +817,7 @@ async def reset_settings():
             "CHUNK_OVERLAP": "200",
             "EMBEDDING_MODEL": "all-MiniLM-L6-v2",
             "MAX_SEARCH_RESULTS": "5",
-            "TTS_VOICE": "en",
+            "TTS_VOICE": DEFAULT_FRIENDLY_VOICE,
             "STT_MODEL": "base"
         }
         

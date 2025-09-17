@@ -2,6 +2,10 @@ import React from 'react';
 import { ExternalLink, FileText, AlertCircle, CheckCircle, Info } from 'lucide-react';
 
 const FormattedMessage = ({ message }) => {
+  if (!message) {
+    return null;
+  }
+
   // Function to format text with basic markdown-like formatting
   const formatText = (text) => {
     if (!text) return '';
@@ -248,36 +252,45 @@ const FormattedMessage = ({ message }) => {
     );
   };
 
+  const {
+    text = '',
+    sources,
+    confidence,
+    intent,
+    usage,
+    timestamp,
+  } = message;
+
   return (
     <div>
       {/* Main message content */}
       <div className="formatted-message">
-        {formatText(message.text)}
+        {formatText(text)}
       </div>
       
       {/* Sources section */}
-      {renderSources(message.sources)}
+      {renderSources(sources)}
       
       {/* Footer with confidence and metadata */}
       <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-200">
         <div className="flex items-center space-x-4">
-          {renderConfidenceIndicator(message.confidence)}
-          {message.intent && (
+          {renderConfidenceIndicator(confidence)}
+          {intent && (
             <div className="flex items-center space-x-1">
               <Info className="h-3 w-3 text-gray-400" />
               <span className="text-xs text-gray-500">
-                {message.intent.type || 'query'}
+                {intent.type || 'query'}
               </span>
             </div>
           )}
-          {message.usage && message.usage.total_tokens && (
+          {usage && usage.total_tokens && (
             <span className="text-xs text-gray-400">
-              {message.usage.total_tokens} tokens
+              {usage.total_tokens} tokens
             </span>
           )}
         </div>
         <span className="text-xs text-gray-500 font-medium">
-          {message.timestamp}
+          {timestamp}
         </span>
       </div>
     </div>

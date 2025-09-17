@@ -101,7 +101,7 @@ const SettingsArea = () => {
     logLevel: 'info',
     
     // Voice Settings
-    ttsVoice: 'en',
+    ttsVoice: 'nova',
     sttModel: 'base',
     voiceSpeed: 1.0,
     
@@ -169,7 +169,7 @@ const SettingsArea = () => {
           logLevel: backendSettings.log_level || 'info',
           
           // Voice Settings
-          ttsVoice: backendSettings.tts_voice || 'en',
+          ttsVoice: backendSettings.tts_voice || 'nova',
           sttModel: backendSettings.stt_model || 'base',
           voiceSpeed: backendSettings.voice_speed || 1.0,
           

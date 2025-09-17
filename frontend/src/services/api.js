@@ -57,7 +57,7 @@ export const apiService = {
       },
       responseType: 'blob'
     });
-    return response.data;
+    return new Blob([response.data], { type: 'audio/wav' });
   },
 
   // Start voice interaction

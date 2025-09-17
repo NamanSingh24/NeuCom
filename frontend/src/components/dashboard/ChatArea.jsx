@@ -4,6 +4,15 @@ import { apiService } from '../../services/api';
 import voiceManager from '../../utils/voiceManager';
 import FormattedMessage from './FormattedMessage';
 
+const DEFAULT_VOICE_PRESETS = [
+  { id: 'nova', name: 'Nova (Warm US)', description: 'Balanced North American delivery' },
+  { id: 'alloy', name: 'Alloy (Bright UK)', description: 'Crisp British tone' },
+  { id: 'echo', name: 'Echo (RP)', description: 'Neutral Received Pronunciation' },
+  { id: 'fable', name: 'Fable (Midlands)', description: 'Engaging Midlands accent' },
+  { id: 'onyx', name: 'Onyx (Scottish)', description: 'Confident Scottish cadence' },
+  { id: 'shimmer', name: 'Shimmer (Caribbean)', description: 'Energetic Caribbean style' }
+];
+
 const ChatArea = ({
   isVoiceMode,
   setIsVoiceMode,
@@ -21,16 +30,10 @@ const ChatArea = ({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [currentAudio, setCurrentAudio] = useState(null);
-  const [selectedVoice, setSelectedVoice] = useState('nova');
+  const [selectedVoice, setSelectedVoice] = useState(DEFAULT_VOICE_PRESETS[0].id);
   const [voiceSpeed, setVoiceSpeed] = useState(0.9);
-  const [availableVoices, setAvailableVoices] = useState([
-    { id: 'nova', name: 'Nova (Recommended)', description: 'Natural and clear' },
-    { id: 'alloy', name: 'Alloy', description: 'Balanced and professional' },
-    { id: 'echo', name: 'Echo', description: 'Deeper and resonant' },
-    { id: 'fable', name: 'Fable', description: 'Expressive and engaging' },
-    { id: 'onyx', name: 'Onyx', description: 'Deep and authoritative' },
-    { id: 'shimmer', name: 'Shimmer', description: 'Bright and energetic' }
-  ]);
+  const [availableVoices, setAvailableVoices] = useState(DEFAULT_VOICE_PRESETS);
+  const [usingBrowserVoices, setUsingBrowserVoices] = useState(false);
 
   useEffect(() => {
     // Check voice support on component mount
@@ -41,6 +44,61 @@ const ChatArea = ({
       setVoiceError('Voice recording is not supported in this browser');
     }
   }, [isVoiceMode]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadVoices = async () => {
+      try {
+        const browserVoiceOptions = await voiceManager.getBrowserPresetVoices(DEFAULT_VOICE_PRESETS);
+        const usableBrowserVoices = browserVoiceOptions.filter(option => option.voiceName);
+
+        if (isMounted && usableBrowserVoices.length) {
+          setAvailableVoices(browserVoiceOptions);
+          setUsingBrowserVoices(true);
+          setSelectedVoice(prev => (
+            browserVoiceOptions.some(voice => voice.id === prev)
+              ? prev
+              : browserVoiceOptions[0].id
+          ));
+          return;
+        }
+      } catch (browserError) {
+        console.warn('Browser voices unavailable, falling back to backend voices.', browserError);
+      }
+
+      try {
+        const response = await apiService.getAvailableVoices();
+        const voices = response?.voices || [];
+
+        if (!isMounted || !voices.length) {
+          return;
+        }
+
+        setAvailableVoices(voices);
+        setUsingBrowserVoices(false);
+        setSelectedVoice(prev => (
+          voices.some(voice => voice.id === prev)
+            ? prev
+            : voices[0].id
+        ));
+      } catch (error) {
+        console.error('Failed to load available voices:', error);
+        if (isMounted) {
+          setVoiceError('Unable to load enhanced voice presets; using default voice.');
+          setAvailableVoices(DEFAULT_VOICE_PRESETS);
+          setSelectedVoice(prev => prev || DEFAULT_VOICE_PRESETS[0].id);
+          setUsingBrowserVoices(false);
+        }
+      }
+    };
+
+    loadVoices();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Auto-synthesize new AI responses when voice is enabled
   useEffect(() => {
@@ -78,6 +136,7 @@ const ChatArea = ({
           console.error('Error stopping recording:', error);
         }
       }
+      voiceManager.stopSpeaking();
       setIsVoiceMode(false);
       resetVoiceState();
     }
@@ -136,36 +195,54 @@ const ChatArea = ({
   const synthesizeResponse = async (text) => {
     if (!voiceEnabled || !text) return;
     
+    let startedBackendPlayback = false;
+
     try {
-      setIsSpeaking(true);
       setVoiceError(null);
-      
-      // Stop any currently playing audio
+
+      if (usingBrowserVoices) {
+        setIsSpeaking(true);
+        try {
+          const played = await voiceManager.playWithBrowserVoice(text, selectedVoice, voiceSpeed);
+          setIsSpeaking(false);
+          if (played) {
+            setCurrentAudio(null);
+            return;
+          }
+        } catch (browserError) {
+          console.warn('Browser speech synthesis failed, falling back to backend TTS.', browserError);
+          setIsSpeaking(false);
+        }
+      }
+
+      // Stop any currently playing backend audio before starting a new clip
       if (currentAudio) {
         currentAudio.pause();
         currentAudio.currentTime = 0;
       }
-      
+
       console.log('Synthesizing speech for:', text.substring(0, 50) + '...');
       const audioBlob = await apiService.synthesizeSpeech(text, selectedVoice, voiceSpeed);
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
-      
+
+      setIsSpeaking(true);
+      startedBackendPlayback = true;
       setCurrentAudio(audio);
-      
+
       audio.onended = () => {
         setIsSpeaking(false);
         URL.revokeObjectURL(audioUrl);
         setCurrentAudio(null);
       };
-      
+
       audio.onerror = (error) => {
         setIsSpeaking(false);
         console.error('Audio playback failed:', error);
         setVoiceError('Audio playback failed');
         setCurrentAudio(null);
       };
-      
+
       await audio.play();
     } catch (error) {
       console.error('Speech synthesis failed:', error);
@@ -173,10 +250,16 @@ const ChatArea = ({
       setVoiceError('Speech synthesis failed: ' + error.message);
       setCurrentAudio(null);
     }
+    finally {
+      if (!startedBackendPlayback) {
+        setIsSpeaking(false);
+      }
+    }
   };
 
   // Stop current speech
   const stopSpeech = () => {
+    voiceManager.stopSpeaking();
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
@@ -292,6 +375,9 @@ const ChatArea = ({
                       </option>
                     ))}
                   </select>
+                  <span className="hidden sm:block text-[11px] text-gray-500 max-w-[160px]">
+                    {availableVoices.find(voice => voice.id === selectedVoice)?.description || 'Voice preset'}
+                  </span>
                   <input
                     type="range"
                     min="0.5"
@@ -382,7 +468,7 @@ const ChatArea = ({
                   ) : (
                     // AI message - with FormattedMessage component
                     <div>
-                      <FormattedMessage content={message.text} />
+                      <FormattedMessage message={message} />
                       <p className="text-xs mt-1 text-gray-500">
                         {message.timestamp}
                       </p>

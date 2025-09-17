@@ -1,3 +1,31 @@
+const PRESET_VOICE_HINTS = {
+  nova: [
+    { nameIncludes: ['Google US English'], langPrefix: 'en-US' },
+    { nameIncludes: ['Microsoft Aria', 'Microsoft Jenny'], langPrefix: 'en-US' },
+    { langPrefix: 'en-US' }
+  ],
+  alloy: [
+    { nameIncludes: ['Google UK English Male', 'Microsoft Ryan'], langPrefix: 'en-GB' },
+    { langPrefix: 'en-GB' }
+  ],
+  echo: [
+    { nameIncludes: ['Google UK English Female', 'Microsoft Sonia'], langPrefix: 'en-GB' },
+    { langPrefix: 'en-GB' }
+  ],
+  fable: [
+    { nameIncludes: ['Microsoft Libby'], langPrefix: 'en-GB' },
+    { langPrefix: 'en-GB' }
+  ],
+  onyx: [
+    { nameIncludes: ['Microsoft Hamish'], langPrefix: 'en-GB' },
+    { langPrefix: 'en-GB' }
+  ],
+  shimmer: [
+    { nameIncludes: ['Google UK English Female', 'Microsoft Abigail'], langPrefix: 'en-GB' },
+    { langPrefix: 'en-GB' }
+  ]
+};
+
 class VoiceManager {
   constructor() {
     this.isRecording = false;
@@ -7,6 +35,8 @@ class VoiceManager {
     this.speechSynthesis = window.speechSynthesis;
     this.currentUtterance = null;
     this.currentAudio = null; // Track current audio element
+    this.cachedSpeechVoices = [];
+    this.voicesLoadedPromise = null;
     
     // Initialize Web Speech API if available
     this.initializeSpeechRecognition();
@@ -132,7 +162,7 @@ class VoiceManager {
     }
   }
 
-  async synthesizeSpeech(text, speed = 1.0) {
+  async synthesizeSpeech(text, voiceId = 'nova', speed = 1.0) {
     try {
       // Validate input
       if (!text || typeof text !== 'string') {
@@ -142,7 +172,7 @@ class VoiceManager {
       // Send as query parameters since FastAPI expects them that way
       const params = new URLSearchParams({
         text: text,
-        voice_id: ('voice_id', 'alloy'),
+        voice_id: voiceId,
         speed: speed.toString()
       });
 
@@ -176,19 +206,48 @@ class VoiceManager {
         this.stopSpeaking();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = speed;
-        utterance.pitch = 1;
-        utterance.volume = 1;
+        utterance.rate = Math.max(0.5, Math.min(2.0, speed)); // Clamp speed
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
         
-        // Try to use a natural-sounding voice
+        // Try to use the most natural-sounding voice available
         const voices = this.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(voice => 
-          voice.lang.startsWith('en') && 
-          (voice.name.includes('Google') || voice.name.includes('Microsoft'))
-        ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
         
-        if (preferredVoice) {
-          utterance.voice = preferredVoice;
+        // Priority order for natural voices
+        const preferredVoices = [
+          // High-quality Google voices
+          'Google US English',
+          'Google UK English Female',
+          'Google UK English Male',
+          // Microsoft voices
+          'Microsoft Zira Desktop',
+          'Microsoft David Desktop',
+          'Microsoft Mark',
+          // Apple voices (on Safari)
+          'Alex',
+          'Samantha',
+          'Victoria',
+          // Any English voice
+          voices.find(v => v.lang === 'en-US'),
+          voices.find(v => v.lang.startsWith('en')),
+          // Fallback to first available
+          voices[0]
+        ];
+        
+        // Find the first available preferred voice
+        let selectedVoice = null;
+        for (const voiceName of preferredVoices) {
+          if (typeof voiceName === 'string') {
+            selectedVoice = voices.find(v => v.name === voiceName);
+          } else if (voiceName) {
+            selectedVoice = voiceName;
+          }
+          if (selectedVoice) break;
+        }
+        
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
+          console.log('Using voice:', selectedVoice.name);
         }
 
         utterance.onend = () => {
@@ -234,6 +293,152 @@ class VoiceManager {
         };
         
         audio.play();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async loadBrowserVoices() {
+    if (!this.speechSynthesis) {
+      return [];
+    }
+
+    if (this.cachedSpeechVoices.length) {
+      return this.cachedSpeechVoices;
+    }
+
+    if (!this.voicesLoadedPromise) {
+      this.voicesLoadedPromise = new Promise((resolve) => {
+        const resolveAndCleanup = (voices, handler, timeoutId) => {
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+          if (handler) {
+            this.speechSynthesis.removeEventListener('voiceschanged', handler);
+          }
+          this.cachedSpeechVoices = voices || [];
+          resolve(this.cachedSpeechVoices);
+        };
+
+        const immediateVoices = this.speechSynthesis.getVoices();
+        if (immediateVoices && immediateVoices.length) {
+          resolveAndCleanup(immediateVoices);
+          return;
+        }
+
+        const handler = () => {
+          const loaded = this.speechSynthesis.getVoices();
+          resolveAndCleanup(loaded, handler, timeoutId);
+        };
+
+        this.speechSynthesis.addEventListener('voiceschanged', handler);
+
+        const timeoutId = setTimeout(() => {
+          const fallback = this.speechSynthesis.getVoices();
+          if (fallback && fallback.length) {
+            resolveAndCleanup(fallback, handler, timeoutId);
+          } else {
+            resolveAndCleanup([], handler, timeoutId);
+          }
+        }, 1800);
+      });
+    }
+
+    return this.voicesLoadedPromise;
+  }
+
+  resolveBrowserVoice(presetId, voices) {
+    if (!voices || !voices.length) {
+      return null;
+    }
+
+    const hints = PRESET_VOICE_HINTS[presetId] || [];
+    for (const hint of hints) {
+      const match = voices.find((voice) => {
+        const matchesName = hint.nameIncludes
+          ? hint.nameIncludes.some(fragment => voice.name.toLowerCase().includes(fragment.toLowerCase()))
+          : true;
+        const matchesLang = hint.langPrefix
+          ? voice.lang && voice.lang.toLowerCase().startsWith(hint.langPrefix.toLowerCase())
+          : true;
+        return matchesName && matchesLang;
+      });
+      if (match) {
+        return match;
+      }
+    }
+
+    // Fallback: try by language family, then first voice
+    if (presetId === 'nova') {
+      const usVoice = voices.find(voice => voice.lang && voice.lang.startsWith('en-US'));
+      if (usVoice) {
+        return usVoice;
+      }
+    }
+
+    const genericVoice = voices.find(voice => voice.lang && voice.lang.startsWith('en'));
+    return genericVoice || voices[0];
+  }
+
+  async getBrowserPresetVoices(presetDefinitions) {
+    const voices = await this.loadBrowserVoices();
+    if (!voices.length) {
+      return [];
+    }
+
+    return presetDefinitions.map((preset) => {
+      const resolvedVoice = this.resolveBrowserVoice(preset.id, voices);
+      return {
+        id: preset.id,
+        name: resolvedVoice ? `${preset.name} (${resolvedVoice.name})` : preset.name,
+        description: preset.description,
+        origin: 'browser',
+        voiceName: resolvedVoice ? resolvedVoice.name : null,
+        lang: resolvedVoice ? resolvedVoice.lang : null
+      };
+    });
+  }
+
+  async playWithBrowserVoice(text, presetId, speed = 1.0) {
+    if (!this.speechSynthesis) {
+      return false;
+    }
+
+    const voices = await this.loadBrowserVoices();
+    if (!voices.length) {
+      return false;
+    }
+
+    return new Promise((resolve, reject) => {
+      try {
+        const voice = this.resolveBrowserVoice(presetId, voices);
+        if (!voice) {
+          resolve(false);
+          return;
+        }
+
+        this.stopSpeaking();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.voice = voice;
+        utterance.rate = speed;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+
+        utterance.onend = () => {
+          this.currentUtterance = null;
+          resolve(true);
+        };
+
+        utterance.onerror = (error) => {
+          this.currentUtterance = null;
+          console.error('Browser speech synthesis failed:', error);
+          reject(error.error || error);
+        };
+
+        this.currentUtterance = utterance;
+        this.speechSynthesis.speak(utterance);
       } catch (error) {
         reject(error);
       }

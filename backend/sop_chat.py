@@ -1,7 +1,7 @@
 from typing import List, Dict, Optional, Any, BinaryIO
 from rag_engine import RAGEngine
 from groq_client import GroqClient
-from voice_handler import VoiceHandler
+from voice_handler import VoiceHandler, DEFAULT_FRIENDLY_VOICE
 import json
 import logging
 from datetime import datetime
@@ -24,13 +24,16 @@ class SOPChat:
         self.user_preferences = {
             "voice_enabled": False,
             "voice_speed": 1.0,
+            "tts_voice": voice_handler.tts_voice if voice_handler else DEFAULT_FRIENDLY_VOICE,
             "auto_advance_steps": False,
             "safety_reminders": True
         }
-    
+
     def set_user_preferences(self, preferences: Dict[str, Any]):
         """Update user preferences"""
-        self.user_preferences.update(preferences)
+        # Ignore None values so that unspecified fields don't clear stored prefs
+        filtered = {k: v for k, v in preferences.items() if v is not None}
+        self.user_preferences.update(filtered)
         logger.info(f"Updated user preferences: {preferences}")
     
     def start_procedure(self, procedure_name: str) -> Dict[str, Any]:
@@ -295,7 +298,8 @@ class SOPChat:
         try:
             if self.voice_handler:
                 return self.voice_handler.text_to_speech(
-                    text, 
+                    text,
+                    voice=self.user_preferences.get("tts_voice", self.voice_handler.tts_voice),
                     speed=self.user_preferences.get("voice_speed", 1.0)
                 )
             return None
